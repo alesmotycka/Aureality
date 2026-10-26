@@ -35,8 +35,19 @@ Run it without Docker: `ANTHROPIC_API_KEY=... node server/server.js` (Node 20+),
 | Sort | Organize by category, room or plan (Keep / Sell / Donate / Repair). "Sort space" lines everything up in rows |
 | Map | Top-down floor map with room areas in m² |
 | Ask | Ask questions about the whole inventory ("what could I sell to raise €1,000?") |
+| Save and share | Save the whole space as `.are` files, open them again, or send one object with all its properties and its price (see below) |
 
 It opens with a sample apartment (70 m², 27 objects) so there is something to explore right away. Changes are saved in the browser's local storage.
+
+### `.are` files
+
+The app reads and writes Aureality's open object format, `.are` v0.1 (spec: `spec/RFC-0001-ARE-Format.md`).
+
+- **Save space** downloads `<space>.are.zip`: one `.are` file for the home, one per room (`rooms/`) and one per object (`objects/`). Rooms point to the home and objects to their room through `graph.parent_did`; positions are in metres relative to the parent.
+- **Share as .are** (in an object's panel) sends that one object: size, materials (linked to the public material templates), condition, plan, notes, AI context, value and asking price. On a phone it opens the share sheet.
+- **Open .are or .zip** takes a saved space (replaces the current one, with Undo) or loose object files (added to the current space).
+- Every saved file is sealed with its Merkle root, and each change since the last save adds a commit to the object's timeline (`created`, `moved`, `updated`). Opening a file checks the seal and says if a file was changed after sealing.
+- Fields the app does not use are kept and written back, so files from other tools pass through without losing data. App-only extras (room name, photo crop) live under `mind_sense.x_aureality`.
 
 ### Known limits
 
