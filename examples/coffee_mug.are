@@ -1,0 +1,94 @@
+{
+  "header": {
+    "did": "did:are:local:mug-9942a",
+    "name": "Favourite studio coffee mug",
+    "version": "0.1.0",
+    "scale_exponent": -1,
+    "privacy_mode": "LOCAL_PRIVATE",
+    "merkle_root": "sha256:81348dd940fef1104c1af1d8e5fee4cfacbebb9ef351eeaa2c1a40f1a7944e3b",
+    "created_at": "2026-10-26T09:00:00.000Z"
+  },
+  "spatial": {
+    "coordinates": {
+      "reference_frame": "did:are:local:desk-01",
+      "position": [
+        0.35,
+        0.74,
+        0.12
+      ],
+      "rotation_quaternion": [
+        0,
+        0,
+        0,
+        1
+      ]
+    },
+    "physical_properties": {
+      "mass_kg": 0.34,
+      "dimensions_m": [
+        0.09,
+        0.09,
+        0.11
+      ],
+      "condition": {
+        "grade": "good"
+      }
+    },
+    "geometry_refs": [
+      {
+        "lod": 0,
+        "format": "GAUSSIAN_SPLAT",
+        "uri": "local://scans/mug-9942a.splat"
+      }
+    ]
+  },
+  "graph": {
+    "parent_did": "did:are:local:desk-01",
+    "children_dids": [],
+    "relations": [
+      {
+        "type": "instance_of",
+        "target_did": "did:are:public:product:coffee-mug"
+      },
+      {
+        "type": "made_of",
+        "target_did": "did:are:public:material:porcelain"
+      }
+    ]
+  },
+  "mind_sense": {
+    "ontology_tags": [
+      "kitchenware",
+      "daily-driver"
+    ],
+    "summary": "White porcelain mug, 330 ml.",
+    "human_notes": [
+      {
+        "text": "Bought at a market in Prague.",
+        "created_at": "2026-10-26T09:00:00.000Z"
+      }
+    ],
+    "sort_plan": "KEEP",
+    "sensory_aura": {
+      "attention_priority": 0.2,
+      "ambient_profile": "deep_focus"
+    }
+  },
+  "timeline": {
+    "head_commit": "sha256:355aa31d5946180a714e6644777c8b9dd05e78dfb116786a0026fe823b53c568",
+    "history": [
+      {
+        "id": "sha256:355aa31d5946180a714e6644777c8b9dd05e78dfb116786a0026fe823b53c568",
+        "event": "created",
+        "parent": null,
+        "root": "sha256:81348dd940fef1104c1af1d8e5fee4cfacbebb9ef351eeaa2c1a40f1a7944e3b",
+        "timestamp": "2026-10-26T09:00:00.000Z"
+      }
+    ]
+  },
+  "ledger": {
+    "encryption_scheme": "AES-256-GCM",
+    "storage_cid": null,
+    "blockchain_anchor": null
+  }
+}

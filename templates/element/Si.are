@@ -1,0 +1,67 @@
+{
+  "header": {
+    "did": "did:are:public:element:Si",
+    "name": "Silicon",
+    "version": "0.1.0",
+    "scale_exponent": -10,
+    "privacy_mode": "PUBLIC_ONCHAIN",
+    "merkle_root": "sha256:c0ef109bdc1614e8c16aba5e58b409a8abb264f3f923fb0b3f75ffac357f4b77",
+    "created_at": "2026-10-26T09:00:00.000Z"
+  },
+  "spatial": {
+    "coordinates": {
+      "reference_frame": "root",
+      "position": [
+        0,
+        0,
+        0
+      ],
+      "rotation_quaternion": [
+        0,
+        0,
+        0,
+        1
+      ]
+    },
+    "physical_properties": {
+      "mass_kg": 4.66362e-26,
+      "quantum_atomic_state": {
+        "symbol": "Si",
+        "atomic_number": 14,
+        "standard_atomic_weight_u": 28.085
+      }
+    },
+    "geometry_refs": []
+  },
+  "graph": {
+    "parent_did": null,
+    "children_dids": [],
+    "relations": []
+  },
+  "mind_sense": {
+    "ontology_tags": [
+      "element",
+      "atom"
+    ],
+    "summary": "Silicon (Si), atomic number 14.",
+    "human_notes": []
+  },
+  "timeline": {
+    "head_commit": "sha256:6e36af8054a11cde9a6e4c5f25d1a8981caf7fea53419afe738dde3a81e5ea70",
+    "history": [
+      {
+        "id": "sha256:6e36af8054a11cde9a6e4c5f25d1a8981caf7fea53419afe738dde3a81e5ea70",
+        "event": "created",
+        "parent": null,
+        "root": "sha256:c0ef109bdc1614e8c16aba5e58b409a8abb264f3f923fb0b3f75ffac357f4b77",
+        "timestamp": "2026-10-26T09:00:00.000Z"
+      }
+    ]
+  },
+  "ledger": {
+    "encryption_scheme": "NONE",
+    "storage_cid": null,
+    "blockchain_anchor": null,
+    "license": "CC0-1.0"
+  }
+}

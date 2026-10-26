@@ -1,0 +1,62 @@
+{
+  "header": {
+    "did": "did:are:local:armchair-7f3c",
+    "name": "Mid-century armchair",
+    "version": "0.1.0",
+    "scale_exponent": 0,
+    "privacy_mode": "LOCAL_PRIVATE",
+    "merkle_root": "sha256:d185f8f186d542a0d4cc9efcad864c87f3ecd9454804ec2028c9cd481d7059ca",
+    "created_at": "2026-10-20T18:00:00.000Z"
+  },
+  "spatial": {
+    "$redacted": "sha256:22e15f1d3ad1b0481c71bd8b4925a77161f4a10c81201016fed8d001633ca49b"
+  },
+  "graph": {
+    "$redacted": "sha256:6800e0ff4d1b3b7c90c6fe915a34bae8e33849fb5d3795f03406419d4f08f9b9"
+  },
+  "mind_sense": {
+    "$redacted": "sha256:bdafdbed8b332a4471111598408b5d6149327e4b7d77048687007b9da9cacd04"
+  },
+  "timeline": {
+    "head_commit": "sha256:b7d11a71017833befc8ed22c1099ae767f4d1d1dd08e4b9def61f91dd6f88b18",
+    "history": [
+      {
+        "id": "sha256:897423fcdbc67c1d50d4f39ee36556806c89dfd0b18ad93b868754b91447a9ee",
+        "event": "created",
+        "parent": null,
+        "root": "sha256:f813fa45b75974a28a0db1ff81dac721084b62790678ae68da7cbdbd37686749",
+        "timestamp": "2026-10-20T18:00:00.000Z"
+      },
+      {
+        "id": "sha256:71b0566787ad8b75b01c4758fedaf67273c8fb50569078cdfd7c141793d1bbdf",
+        "event": "moved",
+        "parent": "sha256:897423fcdbc67c1d50d4f39ee36556806c89dfd0b18ad93b868754b91447a9ee",
+        "root": "sha256:d185f8f186d542a0d4cc9efcad864c87f3ecd9454804ec2028c9cd481d7059ca",
+        "timestamp": "2026-10-22T10:00:00.000Z",
+        "note": "Moved next to the window."
+      },
+      {
+        "id": "sha256:b7d11a71017833befc8ed22c1099ae767f4d1d1dd08e4b9def61f91dd6f88b18",
+        "event": "repaired",
+        "parent": "sha256:71b0566787ad8b75b01c4758fedaf67273c8fb50569078cdfd7c141793d1bbdf",
+        "root": "sha256:d185f8f186d542a0d4cc9efcad864c87f3ecd9454804ec2028c9cd481d7059ca",
+        "timestamp": "2026-10-24T15:30:00.000Z",
+        "note": "Tightened the left leg."
+      }
+    ]
+  },
+  "ledger": {
+    "encryption_scheme": "AES-256-GCM",
+    "storage_cid": null,
+    "blockchain_anchor": null,
+    "value": {
+      "amount": 350,
+      "currency": "EUR",
+      "basis": "estimate"
+    },
+    "asking_price": {
+      "amount": 320,
+      "currency": "EUR"
+    }
+  }
+}

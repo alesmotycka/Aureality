@@ -1,0 +1,83 @@
+{
+  "header": {
+    "did": "did:are:public:element:H-1",
+    "name": "Hydrogen-1 atom (protium)",
+    "version": "0.1.0",
+    "scale_exponent": -10,
+    "privacy_mode": "PUBLIC_ONCHAIN",
+    "merkle_root": "sha256:ee9bc3ec1e0d451a46f4d627666093a8f8a7f2b3d80b423a12b2863d6806ec5b",
+    "created_at": "2026-10-26T09:00:00.000Z"
+  },
+  "spatial": {
+    "coordinates": {
+      "reference_frame": "root",
+      "position": [
+        0,
+        0,
+        0
+      ],
+      "rotation_quaternion": [
+        0,
+        0,
+        0,
+        1
+      ]
+    },
+    "physical_properties": {
+      "mass_kg": 1.6735575e-27,
+      "dimensions_m": [
+        1.06e-10,
+        1.06e-10,
+        1.06e-10
+      ],
+      "quantum_atomic_state": {
+        "atomic_number": 1,
+        "protons": 1,
+        "neutrons": 0,
+        "electrons": 1,
+        "electron_configuration": "1s1"
+      }
+    },
+    "geometry_refs": []
+  },
+  "graph": {
+    "parent_did": null,
+    "children_dids": [],
+    "relations": [
+      {
+        "type": "instance_of",
+        "target_did": "did:are:public:element:H"
+      }
+    ]
+  },
+  "mind_sense": {
+    "ontology_tags": [
+      "element",
+      "atom",
+      "hydrogen"
+    ],
+    "summary": "The most abundant element in the universe.",
+    "human_notes": [],
+    "identifiers": {
+      "wikidata": "Q556"
+    }
+  },
+  "timeline": {
+    "head_commit": "sha256:6188971ffc9bb8c8c28477c450f650340e308a2b0194b4a3f641077144e14d28",
+    "history": [
+      {
+        "id": "sha256:6188971ffc9bb8c8c28477c450f650340e308a2b0194b4a3f641077144e14d28",
+        "event": "created",
+        "parent": null,
+        "root": "sha256:ee9bc3ec1e0d451a46f4d627666093a8f8a7f2b3d80b423a12b2863d6806ec5b",
+        "timestamp": "2026-10-26T09:00:00.000Z"
+      }
+    ]
+  },
+  "ledger": {
+    "encryption_scheme": "NONE",
+    "storage_cid": null,
+    "blockchain_anchor": null,
+    "license": "CC0-1.0"
+  }
+}

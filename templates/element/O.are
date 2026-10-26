@@ -1,0 +1,67 @@
+{
+  "header": {
+    "did": "did:are:public:element:O",
+    "name": "Oxygen",
+    "version": "0.1.0",
+    "scale_exponent": -10,
+    "privacy_mode": "PUBLIC_ONCHAIN",
+    "merkle_root": "sha256:4276031be2a0908e2488fa50ba945228cb9c80b69d72cea6eb3b368230b9114c",
+    "created_at": "2026-10-26T09:00:00.000Z"
+  },
+  "spatial": {
+    "coordinates": {
+      "reference_frame": "root",
+      "position": [
+        0,
+        0,
+        0
+      ],
+      "rotation_quaternion": [
+        0,
+        0,
+        0,
+        1
+      ]
+    },
+    "physical_properties": {
+      "mass_kg": 2.6567e-26,
+      "quantum_atomic_state": {
+        "symbol": "O",
+        "atomic_number": 8,
+        "standard_atomic_weight_u": 15.999
+      }
+    },
+    "geometry_refs": []
+  },
+  "graph": {
+    "parent_did": null,
+    "children_dids": [],
+    "relations": []
+  },
+  "mind_sense": {
+    "ontology_tags": [
+      "element",
+      "atom"
+    ],
+    "summary": "Oxygen (O), atomic number 8.",
+    "human_notes": []
+  },
+  "timeline": {
+    "head_commit": "sha256:005dc7d4662482f18dd6c793c43234e1f925234197cba03d7fc07d07264fd686",
+    "history": [
+      {
+        "id": "sha256:005dc7d4662482f18dd6c793c43234e1f925234197cba03d7fc07d07264fd686",
+        "event": "created",
+        "parent": null,
+        "root": "sha256:4276031be2a0908e2488fa50ba945228cb9c80b69d72cea6eb3b368230b9114c",
+        "timestamp": "2026-10-26T09:00:00.000Z"
+      }
+    ]
+  },
+  "ledger": {
+    "encryption_scheme": "NONE",
+    "storage_cid": null,
+    "blockchain_anchor": null,
+    "license": "CC0-1.0"
+  }
+}
