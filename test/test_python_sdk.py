@@ -42,6 +42,7 @@ class PythonSdk(unittest.TestCase):
         mug["spatial"]["coordinates"]["position"] = [0.35, 0.74, 0.12]
         mug["spatial"]["physical_properties"] = {"mass_kg": 0.34, "dimensions_m": [0.09, 0.09, 0.11], "condition": {"grade": "good"}}
         mug["spatial"]["geometry_refs"] = [{"lod": 0, "format": "GAUSSIAN_SPLAT", "uri": "local://scans/mug-9942a.splat"}]
+        are.relate(mug, "instance_of", "did:are:public:product:coffee-mug")
         are.relate(mug, "made_of", "did:are:public:material:porcelain")
         mug["mind_sense"] = {"ontology_tags": ["kitchenware", "daily-driver"], "summary": "White porcelain mug, 330 ml.",
                              "human_notes": [{"text": "Bought at a market in Prague.", "created_at": T}], "sort_plan": "KEEP",

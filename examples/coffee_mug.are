@@ -5,7 +5,7 @@
     "version": "0.1.0",
     "scale_exponent": -1,
     "privacy_mode": "LOCAL_PRIVATE",
-    "merkle_root": "sha256:0bdf186cac27c8f5cb2cf824e4eff97e35ddb880748515fa4d6ff048c8e57fda",
+    "merkle_root": "sha256:81348dd940fef1104c1af1d8e5fee4cfacbebb9ef351eeaa2c1a40f1a7944e3b",
     "created_at": "2026-10-26T09:00:00.000Z"
   },
   "spatial": {
@@ -47,6 +47,10 @@
     "children_dids": [],
     "relations": [
       {
+        "type": "instance_of",
+        "target_did": "did:are:public:product:coffee-mug"
+      },
+      {
         "type": "made_of",
         "target_did": "did:are:public:material:porcelain"
       }
@@ -71,13 +75,13 @@
     }
   },
   "timeline": {
-    "head_commit": "sha256:213f230feb98c0234480842759b58ddabb7fb725d61b1b647a3944ee9fc5af7e",
+    "head_commit": "sha256:355aa31d5946180a714e6644777c8b9dd05e78dfb116786a0026fe823b53c568",
     "history": [
       {
-        "id": "sha256:213f230feb98c0234480842759b58ddabb7fb725d61b1b647a3944ee9fc5af7e",
+        "id": "sha256:355aa31d5946180a714e6644777c8b9dd05e78dfb116786a0026fe823b53c568",
         "event": "created",
         "parent": null,
-        "root": "sha256:0bdf186cac27c8f5cb2cf824e4eff97e35ddb880748515fa4d6ff048c8e57fda",
+        "root": "sha256:81348dd940fef1104c1af1d8e5fee4cfacbebb9ef351eeaa2c1a40f1a7944e3b",
         "timestamp": "2026-10-26T09:00:00.000Z"
       }
     ]

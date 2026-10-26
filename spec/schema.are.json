@@ -477,6 +477,10 @@
         },
         "$encrypted": {
           "$ref": "#/$defs/encrypted"
+        },
+        "base_commit": {
+          "$ref": "#/$defs/hash",
+          "description": "Parent of the first visible commit, when older history is encrypted or not shared."
         }
       }
     },
@@ -544,6 +548,37 @@
                 },
                 "root": {
                   "$ref": "#/$defs/hash"
+                }
+              }
+            },
+            "key_wraps": {
+              "type": "array",
+              "description": "The content key, wrapped once per person in shared_with.",
+              "items": {
+                "type": "object",
+                "required": [
+                  "recipient",
+                  "alg",
+                  "epk",
+                  "iv",
+                  "wrapped"
+                ],
+                "properties": {
+                  "recipient": {
+                    "type": "string"
+                  },
+                  "alg": {
+                    "const": "ECDH-P256+HKDF-SHA256+A256GCM"
+                  },
+                  "epk": {
+                    "type": "string"
+                  },
+                  "iv": {
+                    "type": "string"
+                  },
+                  "wrapped": {
+                    "type": "string"
+                  }
                 }
               }
             }

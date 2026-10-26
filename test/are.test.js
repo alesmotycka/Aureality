@@ -190,3 +190,34 @@ test("template library verifies and every link inside it resolves", async () => 
     for (const r of e.graph.relations) assert.ok(dids.has(r.target_did), `${f} links to missing ${r.target_did}`);
   }
 });
+
+test("sharing with people: only listed people can open, history survives", async () => {
+  const { shareWith, openShared, decryptLayers, generateKeyPair } = await import("../sdk/js/are.js");
+  const e = parse(readFileSync(new URL("armchair.are", examples), "utf8"));
+  const owner = await generateKeyPair(), buyer = await generateKeyPair(), stranger = await generateKeyPair();
+  const { entity: shared, key } = await shareWith(e, [
+    { id: "did:are:person:owner", publicKey: owner.publicKey },
+    { id: "did:are:person:buyer", publicKey: buyer.publicKey },
+  ], { timestamp: T });
+  assert.equal(shared.header.privacy_mode, "ENCRYPTED_SHARED");
+  assert.deepEqual(shared.ledger.shared_with, ["did:are:person:owner", "did:are:person:buyer"]);
+  assert.equal(JSON.stringify(shared).includes("Grandma"), false);
+  assert.equal((await verify(shared)).ok, true);
+  assert.equal(validate(shared).valid, true);
+
+  const opened = await decryptLayers(shared, await openShared(shared, { id: "did:are:person:buyer", privateKey: buyer.privateKey }));
+  assert.equal(opened.mind_sense.human_notes[0].text.startsWith("Grandma"), true);
+  assert.deepEqual(opened.timeline.history.map((c) => c.event), ["created", "moved", "repaired", "shared"]);
+  assert.equal((await verify(opened)).ok, true);
+
+  await assert.rejects(() => openShared(shared, { id: "did:are:person:buyer", privateKey: stranger.privateKey }), /wrong private key/);
+  await assert.rejects(() => openShared(shared, { id: "did:are:person:stranger", privateKey: stranger.privateKey }), /not on this file/);
+  await assert.rejects(() => shareWith(shared, [{ id: "did:are:person:x", publicKey: stranger.publicKey }]), /already encrypted/);
+
+  // Adding a person later needs the content key, keeps everyone else, and stays verifiable.
+  const { entity: more } = await shareWith(shared, [{ id: "did:are:person:sister", publicKey: stranger.publicKey }], { key, timestamp: T });
+  assert.deepEqual(more.ledger.shared_with, ["did:are:person:owner", "did:are:person:buyer", "did:are:person:sister"]);
+  assert.equal((await verify(more)).ok, true);
+  const sister = await openShared(more, { id: "did:are:person:sister", privateKey: stranger.privateKey });
+  assert.equal(sister.key, key);
+});

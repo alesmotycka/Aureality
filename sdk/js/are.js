@@ -164,7 +164,8 @@ export async function disclose(entity, keep = []) {
     if (layer === "header" || keep.includes(layer)) continue;
     out[layer] = { $redacted: await layerHash(entity, layer) };
   }
-  if (!keep.includes("timeline")) out.timeline = { head_commit: entity.timeline.head_commit, history: [] };
+  if (!keep.includes("timeline"))
+    out.timeline = { head_commit: entity.timeline.head_commit, base_commit: entity.timeline.head_commit, history: [] };
   return out;
 }
 
@@ -210,7 +211,7 @@ export async function encryptLayers(entity, secret, layers = ENCRYPTABLE_LAYERS)
     const box = { alg: "AES-256-GCM", iv: b64(iv), ciphertext: b64(ct) };
     if (kdf) box.kdf = kdf;
     out[layer] = layer === "timeline"
-      ? { head_commit: value.head_commit, history: [], $encrypted: box }
+      ? { head_commit: value.head_commit, base_commit: value.head_commit, history: [], $encrypted: box }
       : { $redacted: await layerHash(entity, layer), $encrypted: box };
   }
   out.ledger.encryption_scheme = "AES-256-GCM";
@@ -232,10 +233,79 @@ export async function decryptLayers(entity, secret) {
         keys.get(cacheKey), unb64(box.ciphertext));
     } catch { throw new Error("Cannot decrypt " + layer + ": wrong key or damaged data"); }
     out[layer] = JSON.parse(new TextDecoder().decode(plain));
+    if (layer === "timeline") {
+      // Commits made after encryption sit in clear next to the ciphertext; put them back on the end.
+      out.timeline.history.push(...(entity.timeline.history || []));
+      out.timeline.head_commit = entity.timeline.head_commit;
+    }
     if (layer !== "timeline" && (await layerHash(out, layer)) !== entity[layer].$redacted)
       throw new Error(layer + " does not match its hash");
   }
   return out;
+}
+
+// ---------- sharing encrypted files with people (ECDH P-256) ----------
+// Each person has a key pair. The file's content key is wrapped once per person in ledger.key_wraps,
+// so only people on the list can open it. Spec section 5.
+const ECDH = { name: "ECDH", namedCurve: "P-256" };
+
+/** New key pair for a person or device. Share publicKey; keep privateKey secret. Both base64. */
+export async function generateKeyPair() {
+  const pair = await globalThis.crypto.subtle.generateKey(ECDH, true, ["deriveBits"]);
+  return {
+    publicKey: b64(await globalThis.crypto.subtle.exportKey("raw", pair.publicKey)),
+    privateKey: b64(await globalThis.crypto.subtle.exportKey("pkcs8", pair.privateKey)),
+  };
+}
+
+async function wrapKey(entity, recipient, ephemeralPrivate, recipientPublic) {
+  const subtle = globalThis.crypto.subtle;
+  const bits = await subtle.deriveBits({ name: "ECDH", public: recipientPublic }, ephemeralPrivate, 256);
+  const hkdf = await subtle.importKey("raw", bits, "HKDF", false, ["deriveKey"]);
+  return subtle.deriveKey({ name: "HKDF", hash: "SHA-256", salt: new Uint8Array(32),
+    info: new TextEncoder().encode("are-key-wrap|" + entity.header.did + "|" + recipient) },
+    hkdf, { name: "AES-GCM", length: 256 }, false, ["encrypt", "decrypt"]);
+}
+
+/**
+ * Encrypt the file (if it isn't yet) and give each recipient a way to open it.
+ * recipients: [{ id: "did:are:person:…", publicKey }]. Include yourself, or keep the returned key.
+ * Returns { entity, key } and records a "shared" commit.
+ */
+export async function shareWith(entity, recipients, { key = generateKey(), timestamp, layers } = {}) {
+  if (!recipients?.length) throw new Error("shareWith needs at least one recipient");
+  const already = ENCRYPTABLE_LAYERS.some((l) => entity[l]?.$encrypted);
+  if (already && !arguments[2]?.key) throw new Error("This file is already encrypted: pass its { key } to add people");
+  const out = already ? structuredClone(entity) : await encryptLayers(entity, { key }, layers);
+  const subtle = globalThis.crypto.subtle;
+  const wraps = (out.ledger.key_wraps || []).filter((w) => !recipients.some((r) => r.id === w.recipient));
+  for (const r of recipients) {
+    const recipientPublic = await subtle.importKey("raw", unb64(r.publicKey), ECDH, false, []);
+    const eph = await subtle.generateKey(ECDH, true, ["deriveBits"]);
+    const kek = await wrapKey(out, r.id, eph.privateKey, recipientPublic);
+    const iv = globalThis.crypto.getRandomValues(new Uint8Array(12));
+    const wrapped = await subtle.encrypt({ name: "AES-GCM", iv }, kek, unb64(key));
+    wraps.push({ recipient: r.id, alg: "ECDH-P256+HKDF-SHA256+A256GCM",
+      epk: b64(await subtle.exportKey("raw", eph.publicKey)), iv: b64(iv), wrapped: b64(wrapped) });
+  }
+  out.ledger.key_wraps = wraps;
+  out.ledger.shared_with = wraps.map((w) => w.recipient);
+  out.header.privacy_mode = "ENCRYPTED_SHARED";
+  await commit(out, "shared", { timestamp, note: "Shared with " + recipients.map((r) => r.id).join(", ") });
+  return { entity: out, key };
+}
+
+/** Recover the content key as a recipient. Then call decryptLayers(entity, { key }). */
+export async function openShared(entity, { id, privateKey }) {
+  const w = (entity.ledger.key_wraps || []).find((x) => x.recipient === id);
+  if (!w) throw new Error(id + " is not on this file's share list");
+  const subtle = globalThis.crypto.subtle;
+  const mine = await subtle.importKey("pkcs8", unb64(privateKey), ECDH, false, ["deriveBits"]);
+  const epk = await subtle.importKey("raw", unb64(w.epk), ECDH, false, []);
+  const kek = await wrapKey(entity, id, mine, epk);
+  try {
+    return { key: b64(await subtle.decrypt({ name: "AES-GCM", iv: unb64(w.iv) }, kek, unb64(w.wrapped))) };
+  } catch { throw new Error("Cannot open: wrong private key for " + id); }
 }
 
 // ---------- checking ----------
@@ -294,7 +364,7 @@ export async function verify(entity) {
   const root = await merkleRoot(entity);
   if (entity.header.merkle_root && entity.header.merkle_root !== root)
     errors.push(`merkle_root mismatch: file says ${entity.header.merkle_root}, content hashes to ${root}`);
-  let prev = null;
+  let prev = entity.timeline.base_commit || null; // set when older history is encrypted or not shared
   for (const c of entity.timeline.history) {
     const { id, ...body } = c;
     if (body.parent !== prev) errors.push(`commit ${id} does not follow ${prev}`);

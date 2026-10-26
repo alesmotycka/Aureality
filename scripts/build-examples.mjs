@@ -25,6 +25,7 @@ nest(desk, mug);
 mug.spatial.coordinates.position = [0.35, 0.74, 0.12];
 mug.spatial.physical_properties = { mass_kg: 0.34, dimensions_m: [0.09, 0.09, 0.11], condition: { grade: "good" } };
 mug.spatial.geometry_refs = [{ lod: 0, format: "GAUSSIAN_SPLAT", uri: "local://scans/mug-9942a.splat" }];
+relate(mug, "instance_of", "did:are:public:product:coffee-mug");
 relate(mug, "made_of", "did:are:public:material:porcelain");
 mug.mind_sense = { ontology_tags: ["kitchenware", "daily-driver"], summary: "White porcelain mug, 330 ml.",
   human_notes: [{ text: "Bought at a market in Prague.", created_at: T }], sort_plan: "KEEP",
@@ -39,6 +40,7 @@ armchair.spatial.coordinates.position = [-3.9, 0, 1.3];
 armchair.spatial.physical_properties = { mass_kg: 14, dimensions_m: [0.85, 0.85, 0.9],
   materials: [{ part: "seat", did: "did:are:public:material:leather" }, { part: "frame", did: "did:are:public:material:beech-wood" }],
   condition: { grade: "worn", note: "Seat leather cracked on the left armrest." } };
+relate(armchair, "instance_of", "did:are:public:product:armchair");
 relate(armchair, "made_of", "did:are:public:material:leather");
 relate(armchair, "made_of", "did:are:public:material:beech-wood");
 armchair.mind_sense = { ontology_tags: ["furniture", "seating", "mid-century"], summary: "Leather armchair with a beech frame, 1960s style.",

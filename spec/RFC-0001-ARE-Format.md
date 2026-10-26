@@ -57,8 +57,10 @@ The key words MUST, SHOULD and MAY are used as in RFC 2119.
 **Public templates.** Entities under `did:are:public:` are shared definitions anyone can link to: elements,
 materials, common products. A private mug that says `made_of did:are:public:material:porcelain` gets
 atomic-level depth without storing it. Templates SHOULD be `PUBLIC_ONCHAIN` and licensed `CC0-1.0`.
-A starter library (10 elements, 12 materials) is in [`../templates/`](../templates/), listed in `templates/index.json`.
-Ids follow `did:are:public:element:<symbol>` and `did:are:public:material:<slug>`.
+A starter library (10 elements, 13 materials, 15 everyday products) is in [`../templates/`](../templates/), listed in
+`templates/index.json`. Ids follow `did:are:public:element:<symbol>`, `did:are:public:material:<slug>` and
+`did:are:public:product:<slug>`. Product templates carry typical values (`physical_properties.typical: true`);
+an object's own measured values always win over its template's.
 
 ### 3.4 `mind_sense`: what it means to people and to AI
 
@@ -80,12 +82,13 @@ A commit log, like git for a physical thing.
   - `root`: the entity's `merkle_root` at that moment.
   - `id` = `sha256` of `"are-commit:"` + canonical JSON of the commit without `id`.
 - `head_commit`: id of the last commit.
+- `base_commit`: only when older history is hidden (encrypted or not shared): the parent of the first visible commit.
 
 Changing any old commit breaks the chain, which a reader can detect.
 
 ### 3.6 `ledger`: ownership, value and sharing
 
-- `owner` (did or label), `owner_pubkey`, `shared_with` (for `ENCRYPTED_SHARED`).
+- `owner` (did or label), `owner_pubkey`, `shared_with` and `key_wraps` (for `ENCRYPTED_SHARED`, see 5).
 - `encryption_scheme`: `NONE`, `AES-256-GCM`, `ZK-SNARK-SEALED`. `PUBLIC_ONCHAIN` files MUST use `NONE`.
 - `license`: SPDX id, e.g. `CC0-1.0`.
 - `value`, `asking_price`, `sale_price`: `{ amount, currency (ISO 4217), basis? }`; `basis` is `estimate`, `receipt`, `appraisal` or `market`.
@@ -127,9 +130,21 @@ hidden layer that also carries its ciphertext:
 
 - Plaintext = canonical JSON of the layer. Additional authenticated data = `header.did + "|" + layer name`, so a layer can't be moved into another file.
 - The key is either a random 256-bit key (no `kdf`) or derived from a passphrase with PBKDF2-SHA256 (`kdf` present).
-- An encrypted `timeline` keeps `head_commit` in clear, with an empty `history` beside `$encrypted`.
+- An encrypted `timeline` keeps `head_commit` in clear, with an empty `history` beside `$encrypted` and `base_commit` set to the encrypted head. Commits made later are appended in clear and chain from `base_commit`; after decryption they follow the decrypted history.
 - Because `$redacted` holds the leaf hash, the `merkle_root` verifies without the key, and the key holder can check that the decrypted layer is the original.
-- How keys are shared between devices and people is outside v0.1.
+
+**Sharing with people (`ENCRYPTED_SHARED`).** Each person or device has an ECDH P-256 key pair. The file's
+content key (the AES key above) is wrapped once per person and stored in `ledger.key_wraps`:
+
+```json
+"key_wraps": [{ "recipient": "did:are:person:buyer", "alg": "ECDH-P256+HKDF-SHA256+A256GCM",
+                "epk": "<base64 ephemeral public key>", "iv": "<base64>", "wrapped": "<base64 content key>" }]
+```
+
+- Wrapping key = HKDF-SHA256 over the ECDH secret of a fresh ephemeral key and the recipient's public key,
+  salt 32 zero bytes, info `"are-key-wrap|" + header.did + "|" + recipient`.
+- `ledger.shared_with` lists the recipients; `header.privacy_mode` becomes `ENCRYPTED_SHARED`; a `shared` commit is added.
+- Adding a person needs the content key; removing a person needs a new content key (re-encrypt), since they may have kept the old one.
 
 **Selective disclosure.** To share part of a file, replace each hidden layer with `{ "$redacted": "<its leaf hash>" }`.
 The `merkle_root` still verifies, so the receiver knows the visible layers are genuine and complete, without seeing
@@ -152,12 +167,12 @@ node sdk/js/cli.js verify examples/armchair.are
 
 ## 7. Open questions for v0.2
 
-- Sharing keys between devices and people (`ENCRYPTED_SHARED`).
+- Revoking access without re-encrypting; key backup and recovery.
 - A JSON-LD context so `.are` maps to RDF (draft exists from earlier work).
 - Units other than metres for very small and very large scales.
 - Registering the media type; governance of the `did:are:public:` namespace.
 - Binary packing (CBOR) for large files.
-- Product templates (`instance_of`), e.g. common furniture and phones.
+- Who may publish under `did:are:public:` and how templates are reviewed.
 
 ## Licence
 

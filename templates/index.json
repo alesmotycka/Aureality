@@ -133,6 +133,102 @@
       "name": "PET plastic",
       "scale_exponent": -6,
       "file": "material/pet-plastic.are"
+    },
+    {
+      "did": "did:are:public:material:rubber",
+      "name": "Rubber",
+      "scale_exponent": -6,
+      "file": "material/rubber.are"
+    },
+    {
+      "did": "did:are:public:product:coffee-mug",
+      "name": "Coffee mug",
+      "scale_exponent": -1,
+      "file": "product/coffee-mug.are"
+    },
+    {
+      "did": "did:are:public:product:drinking-glass",
+      "name": "Drinking glass",
+      "scale_exponent": -1,
+      "file": "product/drinking-glass.are"
+    },
+    {
+      "did": "did:are:public:product:glass-bottle",
+      "name": "Glass bottle",
+      "scale_exponent": -1,
+      "file": "product/glass-bottle.are"
+    },
+    {
+      "did": "did:are:public:product:pet-bottle",
+      "name": "Plastic bottle",
+      "scale_exponent": -1,
+      "file": "product/pet-bottle.are"
+    },
+    {
+      "did": "did:are:public:product:paperback-book",
+      "name": "Paperback book",
+      "scale_exponent": -1,
+      "file": "product/paperback-book.are"
+    },
+    {
+      "did": "did:are:public:product:hardcover-book",
+      "name": "Hardcover book",
+      "scale_exponent": -1,
+      "file": "product/hardcover-book.are"
+    },
+    {
+      "did": "did:are:public:product:t-shirt",
+      "name": "T-shirt",
+      "scale_exponent": -1,
+      "file": "product/t-shirt.are"
+    },
+    {
+      "did": "did:are:public:product:smartphone",
+      "name": "Smartphone",
+      "scale_exponent": -1,
+      "file": "product/smartphone.are"
+    },
+    {
+      "did": "did:are:public:product:laptop",
+      "name": "Laptop",
+      "scale_exponent": -1,
+      "file": "product/laptop.are"
+    },
+    {
+      "did": "did:are:public:product:dining-chair",
+      "name": "Dining chair",
+      "scale_exponent": 0,
+      "file": "product/dining-chair.are"
+    },
+    {
+      "did": "did:are:public:product:armchair",
+      "name": "Armchair",
+      "scale_exponent": 0,
+      "file": "product/armchair.are"
+    },
+    {
+      "did": "did:are:public:product:sofa",
+      "name": "Sofa",
+      "scale_exponent": 0,
+      "file": "product/sofa.are"
+    },
+    {
+      "did": "did:are:public:product:bookshelf",
+      "name": "Bookshelf",
+      "scale_exponent": 0,
+      "file": "product/bookshelf.are"
+    },
+    {
+      "did": "did:are:public:product:wardrobe",
+      "name": "Wardrobe",
+      "scale_exponent": 0,
+      "file": "product/wardrobe.are"
+    },
+    {
+      "did": "did:are:public:product:bicycle",
+      "name": "Bicycle",
+      "scale_exponent": 0,
+      "file": "product/bicycle.are"
     }
   ]
 }

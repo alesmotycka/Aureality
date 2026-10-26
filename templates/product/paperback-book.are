@@ -1,0 +1,73 @@
+{
+  "header": {
+    "did": "did:are:public:product:paperback-book",
+    "name": "Paperback book",
+    "version": "0.1.0",
+    "scale_exponent": -1,
+    "privacy_mode": "PUBLIC_ONCHAIN",
+    "merkle_root": "sha256:67b7466e2c479650b5bd6866e1e0c22292861131a8ac7ea5c06b4ff5159c0def",
+    "created_at": "2026-10-26T09:00:00.000Z"
+  },
+  "spatial": {
+    "coordinates": {
+      "reference_frame": "root",
+      "position": [
+        0,
+        0,
+        0
+      ],
+      "rotation_quaternion": [
+        0,
+        0,
+        0,
+        1
+      ]
+    },
+    "physical_properties": {
+      "typical": true,
+      "mass_kg": 0.3,
+      "dimensions_m": [
+        0.13,
+        0.02,
+        0.2
+      ]
+    },
+    "geometry_refs": []
+  },
+  "graph": {
+    "parent_did": null,
+    "children_dids": [],
+    "relations": [
+      {
+        "type": "made_of",
+        "target_did": "did:are:public:material:paper"
+      }
+    ]
+  },
+  "mind_sense": {
+    "ontology_tags": [
+      "product",
+      "book"
+    ],
+    "summary": "A soft-cover book.",
+    "human_notes": []
+  },
+  "timeline": {
+    "head_commit": "sha256:87610f6abe3fb42081ce3bd317605a9ff54b6f46697de70c94828c05ff6525d0",
+    "history": [
+      {
+        "id": "sha256:87610f6abe3fb42081ce3bd317605a9ff54b6f46697de70c94828c05ff6525d0",
+        "event": "created",
+        "parent": null,
+        "root": "sha256:67b7466e2c479650b5bd6866e1e0c22292861131a8ac7ea5c06b4ff5159c0def",
+        "timestamp": "2026-10-26T09:00:00.000Z"
+      }
+    ]
+  },
+  "ledger": {
+    "encryption_scheme": "NONE",
+    "storage_cid": null,
+    "blockchain_anchor": null,
+    "license": "CC0-1.0"
+  }
+}

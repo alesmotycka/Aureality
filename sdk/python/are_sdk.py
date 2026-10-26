@@ -206,7 +206,8 @@ def disclose(entity: Dict[str, Any], keep: List[str] = ()) -> Dict[str, Any]:
             continue
         out[layer] = {"$redacted": layer_hash(entity, layer)}
     if "timeline" not in keep:
-        out["timeline"] = {"head_commit": entity["timeline"]["head_commit"], "history": []}
+        head = entity["timeline"]["head_commit"]
+        out["timeline"] = {"head_commit": head, "base_commit": head, "history": []}
     return out
 
 
@@ -248,7 +249,7 @@ def verify(entity: Dict[str, Any]) -> List[str]:
     root = merkle_root(entity)
     if entity["header"]["merkle_root"] and entity["header"]["merkle_root"] != root:
         errors.append("merkle_root mismatch: file says %s, content hashes to %s" % (entity["header"]["merkle_root"], root))
-    prev = None
+    prev = entity["timeline"].get("base_commit")  # set when older history is encrypted or not shared
     for c in entity["timeline"]["history"]:
         body = {k: v for k, v in c.items() if k != "id"}
         if body.get("parent") != prev:

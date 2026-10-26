@@ -46,6 +46,8 @@ node sdk/js/cli.js hash examples/coffee_mug.are     # each layer's hash and the 
 node sdk/js/cli.js share examples/armchair.are ledger timeline   # verifiable copy for a buyer
 export ARE_KEY=$(node sdk/js/cli.js keygen)
 node sdk/js/cli.js encrypt examples/armchair.are > private.are  # hides notes, place, history
+node sdk/js/cli.js keypair > buyer.json                          # a person's key pair
+node sdk/js/cli.js grant examples/armchair.are did:are:person:buyer=<publicKey> > for-buyer.are
 node sdk/js/cli.js unpack examples/armchair.are armchair.are.d   # one JSON file per layer
 python3 sdk/python/are_sdk.py examples/*.are templates/*/*.are   # same hashes in Python
 npm test
@@ -72,7 +74,7 @@ await transfer(mug, { to: "did:are:person:new-owner" });          // history tra
 | [`spec/RFC-0001-ARE-Format.md`](spec/RFC-0001-ARE-Format.md) | The v0.1 specification: six layers, hashing, privacy modes, sharing |
 | [`spec/schema.are.json`](spec/schema.are.json) | JSON Schema (draft 2020-12) |
 | [`examples/`](examples/) | Hydrogen atom, coffee mug, armchair (+ buyer's view), observable universe |
-| [`templates/`](templates/) | Public templates your objects link to: 10 elements, 12 materials |
+| [`templates/`](templates/) | Public templates your objects link to: 10 elements, 13 materials, 15 everyday products |
 | [`sdk/js/`](sdk/js/) | Zero-dependency JavaScript SDK and `are` command-line tool (incl. encryption, folder form) |
 | [`sdk/python/`](sdk/python/) | Python SDK, standard library only, same hashes as JavaScript |
 | [`viewer/`](viewer/) | Reality Explorer with the scale slider |
@@ -85,8 +87,8 @@ await transfer(mug, { to: "did:are:person:new-owner" });          // history tra
 - [x] Reality Explorer with the "Reality Scale Slider"
 - [x] Packer/Unpacker for the folder form, Python SDK
 - [x] Encryption envelope (AES-256-GCM, key or passphrase) for `LOCAL_PRIVATE` and `ENCRYPTED_SHARED`
-- [x] Starter public template library (elements, materials) under `did:are:public:`
-- [ ] Product templates and key sharing between people
+- [x] Starter public template library (elements, materials, everyday products) under `did:are:public:`
+- [x] Share encrypted files with chosen people (ECDH key wrapping)
 - [ ] Local Vault & optional On-Chain Merkle Anchor Prototype
 - [ ] Lawyer review of the patent promise, media type registration
 
