@@ -168,6 +168,76 @@ export async function disclose(entity, keep = []) {
   return out;
 }
 
+// ---------- encryption (AES-256-GCM) ----------
+// An encrypted layer is a redacted layer that also carries its ciphertext:
+//   { "$redacted": "<leaf hash>", "$encrypted": { alg, iv, ciphertext, kdf? } }
+// so the merkle_root still verifies without the key, and the key holder can check the plaintext.
+export const ENCRYPTABLE_LAYERS = ["spatial", "graph", "mind_sense", "timeline"];
+const b64 = (bytes) => btoa(String.fromCharCode(...new Uint8Array(bytes)));
+const unb64 = (text) => Uint8Array.from(atob(text), (c) => c.charCodeAt(0));
+const PBKDF2_ITERATIONS = 600000;
+
+/** New random 256-bit key, base64. Keep it safe: without it the layers cannot be read. */
+export function generateKey() {
+  return b64(globalThis.crypto.getRandomValues(new Uint8Array(32)));
+}
+
+async function aesKey(secret, kdf) {
+  const subtle = globalThis.crypto.subtle;
+  if (secret.key) return subtle.importKey("raw", unb64(secret.key), "AES-GCM", false, ["encrypt", "decrypt"]);
+  if (!secret.passphrase) throw new Error("Give { key } (base64, 32 bytes) or { passphrase }");
+  const base = await subtle.importKey("raw", new TextEncoder().encode(secret.passphrase), "PBKDF2", false, ["deriveKey"]);
+  return subtle.deriveKey({ name: "PBKDF2", hash: "SHA-256", salt: unb64(kdf.salt), iterations: kdf.iterations },
+    base, { name: "AES-GCM", length: 256 }, false, ["encrypt", "decrypt"]);
+}
+
+const aad = (entity, layer) => new TextEncoder().encode(entity.header.did + "|" + layer);
+
+/** Encrypt layers with { key } or { passphrase }. Header and ledger stay readable. Returns a copy. */
+export async function encryptLayers(entity, secret, layers = ENCRYPTABLE_LAYERS) {
+  const out = structuredClone(entity);
+  const kdf = secret.passphrase
+    ? { name: "PBKDF2-SHA256", iterations: PBKDF2_ITERATIONS, salt: b64(globalThis.crypto.getRandomValues(new Uint8Array(16))) }
+    : undefined;
+  const key = await aesKey(secret, kdf);
+  for (const layer of layers) {
+    if (!ENCRYPTABLE_LAYERS.includes(layer)) throw new Error(layer + " cannot be encrypted");
+    const value = entity[layer];
+    if (value?.$redacted || value?.$encrypted) continue;
+    const iv = globalThis.crypto.getRandomValues(new Uint8Array(12));
+    const ct = await globalThis.crypto.subtle.encrypt({ name: "AES-GCM", iv, additionalData: aad(entity, layer) },
+      key, new TextEncoder().encode(canonicalize(value)));
+    const box = { alg: "AES-256-GCM", iv: b64(iv), ciphertext: b64(ct) };
+    if (kdf) box.kdf = kdf;
+    out[layer] = layer === "timeline"
+      ? { head_commit: value.head_commit, history: [], $encrypted: box }
+      : { $redacted: await layerHash(entity, layer), $encrypted: box };
+  }
+  out.ledger.encryption_scheme = "AES-256-GCM";
+  return out;
+}
+
+/** Decrypt every encrypted layer. Throws if the key is wrong or a layer does not match its hash. */
+export async function decryptLayers(entity, secret) {
+  const out = structuredClone(entity);
+  const keys = new Map();
+  for (const layer of ENCRYPTABLE_LAYERS) {
+    const box = entity[layer]?.$encrypted;
+    if (!box) continue;
+    const cacheKey = box.kdf ? box.kdf.salt : "raw";
+    if (!keys.has(cacheKey)) keys.set(cacheKey, await aesKey(secret, box.kdf));
+    let plain;
+    try {
+      plain = await globalThis.crypto.subtle.decrypt({ name: "AES-GCM", iv: unb64(box.iv), additionalData: aad(entity, layer) },
+        keys.get(cacheKey), unb64(box.ciphertext));
+    } catch { throw new Error("Cannot decrypt " + layer + ": wrong key or damaged data"); }
+    out[layer] = JSON.parse(new TextDecoder().decode(plain));
+    if (layer !== "timeline" && (await layerHash(out, layer)) !== entity[layer].$redacted)
+      throw new Error(layer + " does not match its hash");
+  }
+  return out;
+}
+
 // ---------- checking ----------
 /** Structural check against schema v0.1 (no network, no dependencies). */
 export function validate(entity) {

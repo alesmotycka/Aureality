@@ -22,7 +22,7 @@ The key words MUST, SHOULD and MAY are used as in RFC 2119.
 - Media type: `application/vnd.aureality.are+json` (to be registered). Extension: `.are`.
 - Heavy data (3D scans, voice recordings, point clouds) is **linked**, not embedded: `geometry_refs[].uri`, `human_notes[].audio_uri`. URIs MAY use `local://` (on the owner's device), `https://`, `ipfs://` or `ar://` (Arweave).
 - Readers MUST keep fields they do not understand when they save a file again. Writers MAY add fields; names starting with `x_` are reserved for private extensions.
-- Unpacked form: a tool MAY store a file as a folder with one JSON file per layer (`header.json`, `spatial/`, `graph/`, `mind_sense/`, `timeline/`, `ledger/`). The single-file form is the exchange format.
+- Unpacked form: a tool MAY store a file as a folder (by convention `<name>.are.d/`) with one JSON file per layer: `header.json`, `spatial.json`, `graph.json`, `mind_sense.json`, `timeline.json`, `ledger.json`, plus an optional `assets/` folder for linked files (`"uri": "./assets/scan.splat"`). Packing the folder gives back the same file. The single-file form is the exchange format.
 
 ## 3. The six layers
 
@@ -57,6 +57,8 @@ The key words MUST, SHOULD and MAY are used as in RFC 2119.
 **Public templates.** Entities under `did:are:public:` are shared definitions anyone can link to: elements,
 materials, common products. A private mug that says `made_of did:are:public:material:porcelain` gets
 atomic-level depth without storing it. Templates SHOULD be `PUBLIC_ONCHAIN` and licensed `CC0-1.0`.
+A starter library (10 elements, 12 materials) is in [`../templates/`](../templates/), listed in `templates/index.json`.
+Ids follow `did:are:public:element:<symbol>` and `did:are:public:material:<slug>`.
 
 ### 3.4 `mind_sense`: what it means to people and to AI
 
@@ -100,7 +102,8 @@ All hashes are SHA-256, written `sha256:<64 lowercase hex>`.
    - The `timeline` is not a leaf: it is a log of roots.
 3. **Merkle root**: pair the leaves left to right, `sha256("are-node:" + left + right)`; an odd node at the end moves up unchanged; repeat until one hash is left.
 
-The reference SDK in [`sdk/js/are.js`](../sdk/js/are.js) is the normative implementation for v0.1.
+The reference SDK in [`sdk/js/are.js`](../sdk/js/are.js) is the normative implementation for v0.1. The Python SDK in
+[`sdk/python/are_sdk.py`](../sdk/python/are_sdk.py) produces the same hashes; CI checks both against each other.
 
 ## 5. Privacy modes and sharing
 
@@ -109,6 +112,24 @@ The reference SDK in [`sdk/js/are.js`](../sdk/js/are.js) is the normative implem
 | `LOCAL_PRIVATE` (default) | Owner only. Stored on the owner's devices, encrypted at rest. | Your home, your things, your notes. |
 | `ENCRYPTED_SHARED` | Owner + people in `shared_with`. | Family inventory, a buyer, an insurer. |
 | `PUBLIC_ONCHAIN` | Everyone. Optionally anchored on a public chain, data on IPFS or Arweave. | Templates, open science, a public monument. |
+
+**Encryption.** A private or shared file MAY encrypt its `spatial`, `graph`, `mind_sense` and `timeline` layers.
+The header and ledger stay readable, so anyone can see what the file is and check it. An encrypted layer is a
+hidden layer that also carries its ciphertext:
+
+```json
+"mind_sense": {
+  "$redacted": "sha256:…leaf hash of the plaintext…",
+  "$encrypted": { "alg": "AES-256-GCM", "iv": "<base64, 12 bytes>", "ciphertext": "<base64, includes the tag>",
+                  "kdf": { "name": "PBKDF2-SHA256", "salt": "<base64, 16 bytes>", "iterations": 600000 } }
+}
+```
+
+- Plaintext = canonical JSON of the layer. Additional authenticated data = `header.did + "|" + layer name`, so a layer can't be moved into another file.
+- The key is either a random 256-bit key (no `kdf`) or derived from a passphrase with PBKDF2-SHA256 (`kdf` present).
+- An encrypted `timeline` keeps `head_commit` in clear, with an empty `history` beside `$encrypted`.
+- Because `$redacted` holds the leaf hash, the `merkle_root` verifies without the key, and the key holder can check that the decrypted layer is the original.
+- How keys are shared between devices and people is outside v0.1.
 
 **Selective disclosure.** To share part of a file, replace each hidden layer with `{ "$redacted": "<its leaf hash>" }`.
 The `merkle_root` still verifies, so the receiver knows the visible layers are genuine and complete, without seeing
@@ -131,11 +152,12 @@ node sdk/js/cli.js verify examples/armchair.are
 
 ## 7. Open questions for v0.2
 
-- Encryption envelope: how `AES-256-GCM` keys and ciphertext are stored.
+- Sharing keys between devices and people (`ENCRYPTED_SHARED`).
 - A JSON-LD context so `.are` maps to RDF (draft exists from earlier work).
 - Units other than metres for very small and very large scales.
 - Registering the media type; governance of the `did:are:public:` namespace.
 - Binary packing (CBOR) for large files.
+- Product templates (`instance_of`), e.g. common furniture and phones.
 
 ## Licence
 

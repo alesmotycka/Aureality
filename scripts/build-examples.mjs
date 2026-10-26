@@ -6,30 +6,17 @@ const out = new URL("../examples/", import.meta.url);
 const save = (name, e) => writeFileSync(new URL(name, out), stringify(e));
 const T = "2026-10-26T09:00:00.000Z";
 
-// Atomic scale: a public template anyone can link to.
+// Atomic scale: one isotope, linked to the element template in templates/.
 const hydrogen = createEntity({ did: "did:are:public:element:H-1", name: "Hydrogen-1 atom (protium)",
   scale_exponent: -10, privacy_mode: "PUBLIC_ONCHAIN", created_at: T });
 hydrogen.spatial.physical_properties = { mass_kg: 1.6735575e-27, dimensions_m: [1.06e-10, 1.06e-10, 1.06e-10],
   quantum_atomic_state: { atomic_number: 1, protons: 1, neutrons: 0, electrons: 1, electron_configuration: "1s1" } };
 hydrogen.mind_sense = { ontology_tags: ["element", "atom", "hydrogen"], summary: "The most abundant element in the universe.",
   human_notes: [], identifiers: { wikidata: "Q556" } };
+relate(hydrogen, "instance_of", "did:are:public:element:H");
 hydrogen.ledger.license = "CC0-1.0";
 await commit(hydrogen, "created", { timestamp: T });
 save("hydrogen_atom.are", hydrogen);
-
-// Material scale: a public template products link to with made_of.
-const porcelain = createEntity({ did: "did:are:public:material:porcelain", name: "Porcelain",
-  scale_exponent: -6, privacy_mode: "PUBLIC_ONCHAIN", created_at: T });
-porcelain.spatial.physical_properties = { density_kg_m3: 2400,
-  composition: [{ did: "did:are:public:mineral:kaolinite", share: 0.5 }, { did: "did:are:public:mineral:quartz", share: 0.25 },
-    { did: "did:are:public:mineral:feldspar", share: 0.25 }] };
-relate(porcelain, "made_of", "did:are:public:element:O-16");
-relate(porcelain, "made_of", "did:are:public:element:Si-28");
-porcelain.mind_sense = { ontology_tags: ["material", "ceramic"], summary: "Vitrified ceramic fired at about 1300 °C.",
-  human_notes: [] };
-porcelain.ledger.license = "CC0-1.0";
-await commit(porcelain, "created", { timestamp: T });
-save("porcelain.are", porcelain);
 
 // Human scale, private: an everyday object at home.
 const desk = createEntity({ did: "did:are:local:desk-01", name: "Office desk", scale_exponent: 0, created_at: T });

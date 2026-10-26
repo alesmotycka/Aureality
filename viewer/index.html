@@ -27,6 +27,7 @@
   .chip { font-size:12px; padding:2px 8px; border-radius:99px; border:1px solid var(--line); color:var(--muted); }
   .chip.ok { border-color:var(--teal); color:var(--teal); } .chip.bad { border-color:var(--bad); color:var(--bad); }
   .chip.gold { border-color:var(--gold); color:var(--gold); }
+  button.chip { background:none; cursor:pointer; padding:2px 8px; border-radius:99px; } button.chip:hover { color:var(--text); }
   details { border-top:1px solid var(--line); padding:8px 0; }
   summary { cursor:pointer; font-weight:600; }
   summary small { color:var(--muted); font-weight:400; margin-left:6px; }
@@ -57,6 +58,7 @@
     <p class="entity-name" id="name">Loading…</p>
     <div class="chips" id="chips"></div>
     <p id="summary" class="sub"></p>
+    <div class="chips" id="links"></div>
     <div id="layers"></div>
     <div class="row">
       <button id="shareBtn" title="Hide everything except price and history, keep it verifiable">Share view for a buyer</button>
@@ -69,17 +71,21 @@
 <script type="module">
 import { verify, disclose, stringify, LAYERS } from "../sdk/js/are.js";
 
-const FILES = ["hydrogen_atom.are", "porcelain.are", "coffee_mug.are", "armchair.are", "observable_universe.are"];
+const FILES = ["../examples/hydrogen_atom.are", "../templates/material/porcelain.are", "../examples/coffee_mug.are", "../examples/armchair.are", "../examples/observable_universe.are"];
 const SUP = { "-": "⁻", 0: "⁰", 1: "¹", 2: "²", 3: "³", 4: "⁴", 5: "⁵", 6: "⁶", 7: "⁷", 8: "⁸", 9: "⁹" };
 const pow = (n) => "10" + String(n).split("").map((c) => SUP[c]).join("") + " m";
 const LAYER_INFO = { header: "identity", spatial: "where and what it is", graph: "how it connects",
   mind_sense: "meaning, notes, plans", timeline: "its life", ledger: "owner, value, sharing" };
 const $ = (id) => document.getElementById(id);
 
-let entities = [], current = null, shown = null;
+let entities = [], current = null, shown = null, templates = new Map();
 
 async function load() {
-  entities = (await Promise.all(FILES.map(async (f) => ({ file: f, data: await (await fetch("../examples/" + f)).json() }))))
+  try {
+    const idx = await (await fetch("../templates/index.json")).json();
+    for (const t of idx.templates) templates.set(t.did, { ...t, file: "../templates/" + t.file });
+  } catch { /* the explorer works without the template library */ }
+  entities = (await Promise.all(FILES.map(async (f) => ({ file: f, data: await (await fetch(f)).json() }))))
     .sort((a, b) => a.data.header.scale_exponent - b.data.header.scale_exponent);
   renderLadder();
   pickByScale(0);
@@ -120,6 +126,15 @@ async function show(e, view = e.data) {
   if (n) chips.push([n + (n === 1 ? " event" : " events") + " in history", ""]);
   $("chips").innerHTML = "";
   for (const [t, cls] of chips) { const s = document.createElement("span"); s.className = "chip " + cls; s.textContent = t; $("chips").append(s); }
+  $("links").innerHTML = "";
+  for (const r of view.graph?.relations || []) {
+    const t = templates.get(r.target_did);
+    const b = document.createElement(t ? "button" : "span");
+    b.className = "chip";
+    b.textContent = r.type.replace("_", " ") + " → " + (t ? t.name : r.target_did);
+    if (t) { b.title = "Open the public template"; b.onclick = () => openFile(t.file); }
+    $("links").append(b);
+  }
   $("layers").innerHTML = "";
   for (const l of LAYERS) {
     const d = document.createElement("details");
@@ -139,9 +154,16 @@ $("fullBtn").onclick = () => show(current);
 $("downloadBtn").onclick = () => {
   const a = document.createElement("a");
   a.href = URL.createObjectURL(new Blob([stringify(shown)], { type: "application/json" }));
-  a.download = (shown === current.data ? current.file : current.file.replace(/\.are$/, ".shared.are"));
+  const base = current.file.split("/").pop();
+  a.download = shown === current.data ? base : base.replace(/\.are$/, ".shared.are");
   a.click();
 };
+
+async function openFile(file) {
+  const known = entities.find((x) => x.file === file);
+  if (known) { $("slider").value = known.data.header.scale_exponent; $("scaleValue").textContent = pow(known.data.header.scale_exponent); return show(known); }
+  openText(file, await (await fetch(file)).text());
+}
 
 async function openText(name, text) {
   try {

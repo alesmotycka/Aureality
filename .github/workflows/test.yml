@@ -12,10 +12,12 @@ jobs:
         with:
           node-version: 22
       - run: npm test
-      - name: Examples match the build script
-        run: node scripts/build-examples.mjs && git diff --exit-code examples/
+      - name: Examples and templates match their build scripts
+        run: node scripts/build-templates.mjs && node scripts/build-examples.mjs && git diff --exit-code examples/ templates/
       - uses: actions/setup-python@v5
         with:
           python-version: "3.12"
       - run: pip install jsonschema
       - run: python scripts/check-schema.py
+      - name: Python SDK (same hashes as JavaScript)
+        run: python -m unittest discover -s test -p 'test_*.py' -v

@@ -44,6 +44,10 @@ Requires Node.js 20 or newer. No dependencies to install.
 node sdk/js/cli.js verify examples/armchair.are     # structure + merkle root + history chain
 node sdk/js/cli.js hash examples/coffee_mug.are     # each layer's hash and the root
 node sdk/js/cli.js share examples/armchair.are ledger timeline   # verifiable copy for a buyer
+export ARE_KEY=$(node sdk/js/cli.js keygen)
+node sdk/js/cli.js encrypt examples/armchair.are > private.are  # hides notes, place, history
+node sdk/js/cli.js unpack examples/armchair.are armchair.are.d   # one JSON file per layer
+python3 sdk/python/are_sdk.py examples/*.are templates/*/*.are   # same hashes in Python
 npm test
 ```
 
@@ -59,7 +63,7 @@ await transfer(mug, { to: "did:are:person:new-owner" });          // history tra
 ```
 
 **Reality Explorer:** run `python3 -m http.server` in this folder and open
-<http://localhost:8000/viewer/>. Slide from an atom to the universe, open your own `.are` file, and see a buyer's view.
+<http://localhost:8000/viewer/>. Slide from an atom to the universe, follow links (mug → porcelain → oxygen), open your own `.are` file, and see a buyer's view.
 
 ## 📁 What's here
 
@@ -67,8 +71,10 @@ await transfer(mug, { to: "did:are:person:new-owner" });          // history tra
 |---|---|
 | [`spec/RFC-0001-ARE-Format.md`](spec/RFC-0001-ARE-Format.md) | The v0.1 specification: six layers, hashing, privacy modes, sharing |
 | [`spec/schema.are.json`](spec/schema.are.json) | JSON Schema (draft 2020-12) |
-| [`examples/`](examples/) | Hydrogen atom, porcelain, coffee mug, armchair (+ buyer's view), observable universe |
-| [`sdk/js/`](sdk/js/) | Zero-dependency JavaScript SDK and `are` command-line tool |
+| [`examples/`](examples/) | Hydrogen atom, coffee mug, armchair (+ buyer's view), observable universe |
+| [`templates/`](templates/) | Public templates your objects link to: 10 elements, 12 materials |
+| [`sdk/js/`](sdk/js/) | Zero-dependency JavaScript SDK and `are` command-line tool (incl. encryption, folder form) |
+| [`sdk/python/`](sdk/python/) | Python SDK, standard library only, same hashes as JavaScript |
 | [`viewer/`](viewer/) | Reality Explorer with the scale slider |
 
 ## 🗺️ Repository Roadmap
@@ -77,9 +83,10 @@ await transfer(mug, { to: "did:are:person:new-owner" });          // history tra
 - [x] Reference `.are` Examples (atom, material, object, universe)
 - [x] Open-Source `.are` SDK & CLI (JavaScript): create, seal, verify, history, transfer, selective sharing
 - [x] Reality Explorer with the "Reality Scale Slider"
-- [ ] Packer/Unpacker for the folder form, Python SDK
-- [ ] Encryption envelope for `LOCAL_PRIVATE` and `ENCRYPTED_SHARED`
-- [ ] Public template library (elements, materials, common products) under `did:are:public:`
+- [x] Packer/Unpacker for the folder form, Python SDK
+- [x] Encryption envelope (AES-256-GCM, key or passphrase) for `LOCAL_PRIVATE` and `ENCRYPTED_SHARED`
+- [x] Starter public template library (elements, materials) under `did:are:public:`
+- [ ] Product templates and key sharing between people
 - [ ] Local Vault & optional On-Chain Merkle Anchor Prototype
 - [ ] Lawyer review of the patent promise, media type registration
 

@@ -1,0 +1,67 @@
+{
+  "header": {
+    "did": "did:are:public:element:H",
+    "name": "Hydrogen",
+    "version": "0.1.0",
+    "scale_exponent": -10,
+    "privacy_mode": "PUBLIC_ONCHAIN",
+    "merkle_root": "sha256:cab85d99397b03b2e0eb18ae08f49bf29a1d7a65a8a2037c81d76edbf3e4b548",
+    "created_at": "2026-10-26T09:00:00.000Z"
+  },
+  "spatial": {
+    "coordinates": {
+      "reference_frame": "root",
+      "position": [
+        0,
+        0,
+        0
+      ],
+      "rotation_quaternion": [
+        0,
+        0,
+        0,
+        1
+      ]
+    },
+    "physical_properties": {
+      "mass_kg": 1.67382e-27,
+      "quantum_atomic_state": {
+        "symbol": "H",
+        "atomic_number": 1,
+        "standard_atomic_weight_u": 1.008
+      }
+    },
+    "geometry_refs": []
+  },
+  "graph": {
+    "parent_did": null,
+    "children_dids": [],
+    "relations": []
+  },
+  "mind_sense": {
+    "ontology_tags": [
+      "element",
+      "atom"
+    ],
+    "summary": "Hydrogen (H), atomic number 1.",
+    "human_notes": []
+  },
+  "timeline": {
+    "head_commit": "sha256:8165be966ba21887bdac85bbc0e1bd3e3e31aca459e54f273d9dccf5c79dfb35",
+    "history": [
+      {
+        "id": "sha256:8165be966ba21887bdac85bbc0e1bd3e3e31aca459e54f273d9dccf5c79dfb35",
+        "event": "created",
+        "parent": null,
+        "root": "sha256:cab85d99397b03b2e0eb18ae08f49bf29a1d7a65a8a2037c81d76edbf3e4b548",
+        "timestamp": "2026-10-26T09:00:00.000Z"
+      }
+    ]
+  },
+  "ledger": {
+    "encryption_scheme": "NONE",
+    "storage_cid": null,
+    "blockchain_anchor": null,
+    "license": "CC0-1.0"
+  }
+}

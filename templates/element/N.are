@@ -1,0 +1,67 @@
+{
+  "header": {
+    "did": "did:are:public:element:N",
+    "name": "Nitrogen",
+    "version": "0.1.0",
+    "scale_exponent": -10,
+    "privacy_mode": "PUBLIC_ONCHAIN",
+    "merkle_root": "sha256:7ad70f9ac3fd9ecbc9ce100cec69884614b16c7987cea1face5d4b2708275253",
+    "created_at": "2026-10-26T09:00:00.000Z"
+  },
+  "spatial": {
+    "coordinates": {
+      "reference_frame": "root",
+      "position": [
+        0,
+        0,
+        0
+      ],
+      "rotation_quaternion": [
+        0,
+        0,
+        0,
+        1
+      ]
+    },
+    "physical_properties": {
+      "mass_kg": 2.32592e-26,
+      "quantum_atomic_state": {
+        "symbol": "N",
+        "atomic_number": 7,
+        "standard_atomic_weight_u": 14.007
+      }
+    },
+    "geometry_refs": []
+  },
+  "graph": {
+    "parent_did": null,
+    "children_dids": [],
+    "relations": []
+  },
+  "mind_sense": {
+    "ontology_tags": [
+      "element",
+      "atom"
+    ],
+    "summary": "Nitrogen (N), atomic number 7.",
+    "human_notes": []
+  },
+  "timeline": {
+    "head_commit": "sha256:e12dcde119b7471f6af596fc964b9649548567ec5459497cc53d16d4543e32ad",
+    "history": [
+      {
+        "id": "sha256:e12dcde119b7471f6af596fc964b9649548567ec5459497cc53d16d4543e32ad",
+        "event": "created",
+        "parent": null,
+        "root": "sha256:7ad70f9ac3fd9ecbc9ce100cec69884614b16c7987cea1face5d4b2708275253",
+        "timestamp": "2026-10-26T09:00:00.000Z"
+      }
+    ]
+  },
+  "ledger": {
+    "encryption_scheme": "NONE",
+    "storage_cid": null,
+    "blockchain_anchor": null,
+    "license": "CC0-1.0"
+  }
+}

@@ -135,3 +135,58 @@ test("every example is sealed and has a head commit", async () => {
     assert.match(e.timeline.head_commit, /^sha256:/, f);
   }
 });
+
+test("encryption hides layers, keeps the root, and round-trips", async () => {
+  const { encryptLayers, decryptLayers, generateKey } = await import("../sdk/js/are.js");
+  const e = parse(readFileSync(new URL("armchair.are", examples), "utf8"));
+  const key = generateKey();
+  const enc = await encryptLayers(e, { key });
+  assert.equal(JSON.stringify(enc).includes("Grandma"), false);
+  assert.equal(enc.timeline.history.length, 0);
+  assert.equal((await verify(enc)).ok, true);
+  const dec = await decryptLayers(enc, { key });
+  for (const l of ["spatial", "graph", "mind_sense", "timeline"]) assert.equal(canonicalize(dec[l]), canonicalize(e[l]));
+  assert.equal((await verify(dec)).ok, true);
+  await assert.rejects(() => decryptLayers(enc, { key: generateKey() }), /wrong key/);
+
+  const withPass = await encryptLayers(e, { passphrase: "correct horse" }, ["mind_sense"]);
+  assert.ok(withPass.spatial.coordinates, "only the chosen layer is encrypted");
+  assert.equal((await decryptLayers(withPass, { passphrase: "correct horse" })).mind_sense.sort_plan, "SELL");
+
+  // Swapping an encrypted layer between files is caught (the did is bound into the ciphertext).
+  const other = await encryptLayers({ ...structuredClone(e), header: { ...e.header, did: "did:are:local:other" } }, { key });
+  const swapped = structuredClone(enc);
+  swapped.mind_sense = other.mind_sense;
+  await assert.rejects(() => decryptLayers(swapped, { key }));
+});
+
+test("folder form packs back to the same file", async () => {
+  const { pack, unpack } = await import("../sdk/js/folder.js");
+  const { mkdtempSync, readdirSync: ls } = await import("node:fs");
+  const { tmpdir } = await import("node:os");
+  const { join } = await import("node:path");
+  const dir = join(mkdtempSync(join(tmpdir(), "are-")), "armchair.are.d");
+  const e = parse(readFileSync(new URL("armchair.are", examples), "utf8"));
+  unpack(e, dir);
+  assert.deepEqual(ls(dir).sort(), ["graph.json", "header.json", "ledger.json", "mind_sense.json", "spatial.json", "timeline.json"]);
+  assert.deepEqual(pack(dir), e);
+});
+
+test("template library verifies and every link inside it resolves", async () => {
+  const lib = new URL("../templates/", import.meta.url);
+  const index = JSON.parse(readFileSync(new URL("index.json", lib), "utf8"));
+  const dids = new Set(index.templates.map((t) => t.did));
+  assert.ok(index.templates.length >= 20);
+  for (const t of index.templates) {
+    const e = parse(readFileSync(new URL(t.file, lib), "utf8"));
+    assert.equal(e.header.did, t.did);
+    assert.equal(e.header.privacy_mode, "PUBLIC_ONCHAIN");
+    assert.equal((await verify(e)).ok, true, t.file);
+    for (const r of e.graph.relations) assert.ok(dids.has(r.target_did), `${t.file} links to missing ${r.target_did}`);
+  }
+  // Examples link to templates that exist.
+  for (const f of ["coffee_mug.are", "armchair.are", "hydrogen_atom.are"]) {
+    const e = parse(readFileSync(new URL(f, examples), "utf8"));
+    for (const r of e.graph.relations) assert.ok(dids.has(r.target_did), `${f} links to missing ${r.target_did}`);
+  }
+});

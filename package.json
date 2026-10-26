@@ -9,6 +9,6 @@
   "engines": { "node": ">=20" },
   "scripts": {
     "test": "node --test",
-    "examples": "node scripts/build-examples.mjs"
+    "examples": "node scripts/build-templates.mjs && node scripts/build-examples.mjs"
   }
 }

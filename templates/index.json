@@ -1,0 +1,138 @@
+{
+  "version": "0.1.0",
+  "license": "CC0-1.0",
+  "templates": [
+    {
+      "did": "did:are:public:element:H",
+      "name": "Hydrogen",
+      "scale_exponent": -10,
+      "file": "element/H.are"
+    },
+    {
+      "did": "did:are:public:element:C",
+      "name": "Carbon",
+      "scale_exponent": -10,
+      "file": "element/C.are"
+    },
+    {
+      "did": "did:are:public:element:N",
+      "name": "Nitrogen",
+      "scale_exponent": -10,
+      "file": "element/N.are"
+    },
+    {
+      "did": "did:are:public:element:O",
+      "name": "Oxygen",
+      "scale_exponent": -10,
+      "file": "element/O.are"
+    },
+    {
+      "did": "did:are:public:element:Na",
+      "name": "Sodium",
+      "scale_exponent": -10,
+      "file": "element/Na.are"
+    },
+    {
+      "did": "did:are:public:element:Al",
+      "name": "Aluminium",
+      "scale_exponent": -10,
+      "file": "element/Al.are"
+    },
+    {
+      "did": "did:are:public:element:Si",
+      "name": "Silicon",
+      "scale_exponent": -10,
+      "file": "element/Si.are"
+    },
+    {
+      "did": "did:are:public:element:Ca",
+      "name": "Calcium",
+      "scale_exponent": -10,
+      "file": "element/Ca.are"
+    },
+    {
+      "did": "did:are:public:element:Fe",
+      "name": "Iron",
+      "scale_exponent": -10,
+      "file": "element/Fe.are"
+    },
+    {
+      "did": "did:are:public:element:Cu",
+      "name": "Copper",
+      "scale_exponent": -10,
+      "file": "element/Cu.are"
+    },
+    {
+      "did": "did:are:public:material:water",
+      "name": "Water",
+      "scale_exponent": -6,
+      "file": "material/water.are"
+    },
+    {
+      "did": "did:are:public:material:porcelain",
+      "name": "Porcelain",
+      "scale_exponent": -6,
+      "file": "material/porcelain.are"
+    },
+    {
+      "did": "did:are:public:material:soda-lime-glass",
+      "name": "Soda-lime glass",
+      "scale_exponent": -6,
+      "file": "material/soda-lime-glass.are"
+    },
+    {
+      "did": "did:are:public:material:steel",
+      "name": "Steel",
+      "scale_exponent": -6,
+      "file": "material/steel.are"
+    },
+    {
+      "did": "did:are:public:material:aluminium",
+      "name": "Aluminium",
+      "scale_exponent": -6,
+      "file": "material/aluminium.are"
+    },
+    {
+      "did": "did:are:public:material:copper",
+      "name": "Copper",
+      "scale_exponent": -6,
+      "file": "material/copper.are"
+    },
+    {
+      "did": "did:are:public:material:beech-wood",
+      "name": "Beech wood",
+      "scale_exponent": -6,
+      "file": "material/beech-wood.are"
+    },
+    {
+      "did": "did:are:public:material:oak-wood",
+      "name": "Oak wood",
+      "scale_exponent": -6,
+      "file": "material/oak-wood.are"
+    },
+    {
+      "did": "did:are:public:material:leather",
+      "name": "Leather",
+      "scale_exponent": -6,
+      "file": "material/leather.are"
+    },
+    {
+      "did": "did:are:public:material:cotton",
+      "name": "Cotton",
+      "scale_exponent": -6,
+      "file": "material/cotton.are"
+    },
+    {
+      "did": "did:are:public:material:paper",
+      "name": "Paper",
+      "scale_exponent": -6,
+      "file": "material/paper.are"
+    },
+    {
+      "did": "did:are:public:material:pet-plastic",
+      "name": "PET plastic",
+      "scale_exponent": -6,
+      "file": "material/pet-plastic.are"
+    }
+  ]
+}
