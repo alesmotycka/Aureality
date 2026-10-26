@@ -1,0 +1,93 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Aureality</title>
+<meta name="description" content="Aureality maps and sorts reality. Capture your space with your phone, tap any object for context, and keep it in .are, an open format from atom to universe.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+:root {
+  --bg: #f4f5f7; --panel: #ffffff; --line: #d9dde5; --fg: #161a22; --muted: #5c6577;
+  --accent: #b07a12; --accent-ink: #ffffff; --accent-soft: #f3e6c8;
+  --font-display: "Bricolage Grotesque", "Avenir Next", "Segoe UI", sans-serif;
+  --font-body: "IBM Plex Sans", "Segoe UI", system-ui, sans-serif;
+  --font-mono: "IBM Plex Mono", ui-monospace, Menlo, monospace;
+  color-scheme: light;
+}
+@media (prefers-color-scheme: dark) {
+  :root { --bg: #0f1218; --panel: #171b24; --line: #2a3140; --fg: #e8eaef; --muted: #98a1b3; --accent: #e2b04a; --accent-ink: #1a1405; --accent-soft: #3a2f17; color-scheme: dark; }
+}
+* { box-sizing: border-box; }
+body { margin: 0; background: var(--bg); color: var(--fg); font-family: var(--font-body); font-size: 17px; line-height: 1.55; }
+.wrap { max-width: 980px; margin: 0 auto; padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); }
+header { padding-block: 22px; display: flex; align-items: center; }
+.logo { font-family: var(--font-display); font-weight: 700; font-size: 24px; letter-spacing: -0.02em; }
+.logo span { color: var(--accent); }
+a { color: var(--accent); }
+.hero { padding-block: 48px 64px; }
+.hero h1 { font-family: var(--font-display); font-weight: 700; font-size: clamp(40px, 7vw, 72px); line-height: 1.02; letter-spacing: -0.03em; margin: 0 0 18px; text-wrap: balance; }
+.hero h1 em { font-style: normal; color: var(--accent); }
+.hero p { color: var(--muted); font-size: 19px; max-width: 36em; margin: 0 0 22px; }
+.badge { display: inline-block; font-family: var(--font-mono); font-size: 13px; background: var(--accent-soft); color: var(--fg); border-radius: 999px; padding: 5px 12px; }
+section { padding-block: 52px; border-top: 1px solid var(--line); }
+h2 { font-family: var(--font-display); font-size: clamp(28px, 4vw, 40px); letter-spacing: -0.02em; margin: 0 0 10px; text-wrap: balance; }
+.lead { color: var(--muted); max-width: 40em; margin: 0 0 28px; }
+.grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; }
+.grid.two { grid-template-columns: repeat(2, 1fr); }
+.card { background: var(--panel); border: 1px solid var(--line); border-radius: 14px; padding: 18px 20px; }
+.card h3 { margin: 0 0 4px; font-size: 17px; }
+.card p { margin: 0; color: var(--muted); }
+.card .k { font-family: var(--font-mono); font-size: 12px; color: var(--accent); display: block; margin-bottom: 6px; }
+.scale { font-family: var(--font-mono); font-size: 14px; color: var(--muted); display: flex; justify-content: space-between; gap: 8px; flex-wrap: wrap; margin-top: 20px; padding: 14px 18px; border: 1px dashed var(--line); border-radius: 12px; }
+footer { padding-block: 28px; color: var(--muted); font-size: 14px; border-top: 1px solid var(--line); display: flex; gap: 16px; flex-wrap: wrap; justify-content: space-between; }
+@media (max-width: 760px) { .grid, .grid.two { grid-template-columns: 1fr; } .hero { padding-block: 20px 44px; } }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header><div class="logo">Au<span>reality</span></div></header>
+
+  <div class="hero">
+    <h1>Your space, <em>understood</em>.</h1>
+    <p>Aureality maps and sorts reality. Walk through your home with your phone, tap anything you see to learn about it, and decide what to keep, move, sell or give away.</p>
+    <span class="badge">In early development</span>
+  </div>
+
+  <section>
+    <h2>How it will work</h2>
+    <p class="lead">Phone first, built for decluttering and moving.</p>
+    <div class="grid">
+      <div class="card"><span class="k">01</span><h3>Capture</h3><p>Take photos or a short video of a room. Aureality builds a 3D model of it.</p></div>
+      <div class="card"><span class="k">02</span><h3>Tap</h3><p>Tap any object. AI names it, estimates its size and value, and adds useful context.</p></div>
+      <div class="card"><span class="k">03</span><h3>Sort</h3><p>Group things by room, category or plan, and see your whole home at a glance.</p></div>
+    </div>
+  </section>
+
+  <section>
+    <h2>.are, an open format for reality</h2>
+    <p class="lead">Every object Aureality knows about is stored as an <b>.are</b> file (Aureality Reality Entity). It is one open, scale-free format that can describe anything, from a single atom to the whole universe, and that you can keep private or share.</p>
+    <div class="grid two">
+      <div class="card"><h3>Identity</h3><p>A stable ID, a scale index and a privacy flag for every entity.</p></div>
+      <div class="card"><h3>Space and physics</h3><p>Geometry, materials and composition at any scale.</p></div>
+      <div class="card"><h3>Relations</h3><p>What something is made of, and where it lives.</p></div>
+      <div class="card"><h3>Meaning</h3><p>Names, notes, memories and AI descriptions.</p></div>
+      <div class="card"><h3>Timeline</h3><p>A history of how an object moved and changed.</p></div>
+      <div class="card"><h3>Ownership</h3><p>Local encryption by default, optional public proof when you choose to share.</p></div>
+    </div>
+    <div class="scale"><span>10⁻¹⁵ m · particle</span><span>10⁰ m · armchair</span><span>10²⁶ m · universe</span></div>
+  </section>
+
+  <section>
+    <h2>Open by design</h2>
+    <p class="lead">The .are specification and reference code are open source under the Apache License 2.0, so anyone can read, write and build on .are files.</p>
+  </section>
+
+  <footer>
+    <span>© 2026 Aureality</span>
+    <span>Contact: <a href="mailto:your@aureality.eu">your@aureality.eu</a></span>
+  </footer>
+</div>
+</body>
+</html>

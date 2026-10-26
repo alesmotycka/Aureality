@@ -45,6 +45,11 @@ Every `.are` file acts as a **Fractal, Hierarchical Graph Container** with lazy-
 
 ---
 
+## 🌍 Website
+The public site lives in [`site/`](site/) and is published at **https://aureality.online** via Cloudflare Pages.
+
+---
+
 ## 📜 License & Authorship
 Created by **Aleš Motyčka** (@alesmotycka).  
 Specification and reference code licensed under the **Apache License 2.0**.
