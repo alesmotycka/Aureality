@@ -1,0 +1,1242 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<style>body{margin:0}img{max-width:100%}</style>
+</head>
+<body>
+<title>Aureality</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+/* Layout: full-height tool. Header bar, inventory sidebar on the left, 3D viewport filling the rest, inspector floating over the viewport. Stacks on phones. */
+:root {
+  --bg: #e9ecf1;
+  --panel: #f8f9fb;
+  --raised: #ffffff;
+  --line: #d3d8e1;
+  --fg: #161a22;
+  --muted: #5c6577;
+  --accent: #b07a12;
+  --accent-ink: #ffffff;
+  --accent-soft: #f3e6c8;
+  --scene: #dfe3ea;
+  --floor: #f4f2ec;
+  --wall: #b9bfca;
+  --danger: #b23b3b;
+  --font-display: "Bricolage Grotesque", "Avenir Next", "Segoe UI", sans-serif;
+  --font-body: "IBM Plex Sans", "Segoe UI", system-ui, sans-serif;
+  --font-mono: "IBM Plex Mono", ui-monospace, "SFMono-Regular", Menlo, monospace;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #0f1218; --panel: #151922; --raised: #1c212c; --line: #2a3140; --fg: #e8eaef; --muted: #98a1b3;
+    --accent: #e2b04a; --accent-ink: #1a1405; --accent-soft: #3a2f17; --scene: #11151c; --floor: #232833; --wall: #3d4554; --danger: #e07070;
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #0f1218; --panel: #151922; --raised: #1c212c; --line: #2a3140; --fg: #e8eaef; --muted: #98a1b3;
+  --accent: #e2b04a; --accent-ink: #1a1405; --accent-soft: #3a2f17; --scene: #11151c; --floor: #232833; --wall: #3d4554; --danger: #e07070;
+  color-scheme: dark;
+}
+html, body { height: 100%; }
+body { background: var(--bg); color: var(--fg); font-family: var(--font-body); font-size: 14px; }
+* { box-sizing: border-box; }
+[hidden] { display: none !important; }
+button, input, select, textarea { font: inherit; color: inherit; }
+button { cursor: pointer; }
+:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+
+.app { display: grid; grid-template-rows: auto 1fr; height: 100%; }
+header.bar {
+  display: flex; align-items: center; gap: 12px; flex-wrap: wrap;
+  padding-block: 10px; padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px));
+  background: var(--panel); border-bottom: 1px solid var(--line);
+}
+.brand { display: flex; align-items: baseline; gap: 10px; margin-right: auto; }
+.brand h1 { font-family: var(--font-display); font-weight: 700; font-size: 22px; letter-spacing: -0.02em; margin: 0; }
+.brand h1 span { color: var(--accent); }
+.brand small { color: var(--muted); font-size: 12px; }
+.seg { display: inline-flex; border: 1px solid var(--line); border-radius: 8px; overflow: hidden; background: var(--raised); }
+.seg button { border: 0; background: transparent; padding: 6px 12px; color: var(--muted); }
+.seg button[aria-pressed="true"] { background: var(--fg); color: var(--bg); }
+.btn { border: 1px solid var(--line); background: var(--raised); border-radius: 8px; padding: 6px 12px; }
+.btn:hover { border-color: var(--muted); }
+.btn.primary { background: var(--accent); color: var(--accent-ink); border-color: var(--accent); font-weight: 600; }
+.btn.on { background: var(--accent-soft); border-color: var(--accent); }
+.btn.danger { color: var(--danger); }
+.btn.small { padding: 3px 8px; font-size: 12px; }
+
+.main { display: grid; grid-template-columns: 330px 1fr; min-height: 0; }
+aside.side { background: var(--panel); border-right: 1px solid var(--line); overflow-y: auto; min-width: 0; display: flex; flex-direction: column; }
+.side section { padding: 14px 16px; border-bottom: 1px solid var(--line); display: grid; gap: 10px; }
+.side h2 { font-size: 11px; text-transform: uppercase; letter-spacing: 0.08em; color: var(--muted); margin: 0; font-weight: 600; }
+.stats { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
+.stat b { display: block; font-family: var(--font-mono); font-size: 17px; font-weight: 500; font-variant-numeric: tabular-nums; }
+.stat span { font-size: 11px; color: var(--muted); }
+.controls { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+.controls label { display: grid; gap: 3px; font-size: 11px; color: var(--muted); }
+input[type="search"], select, .field input, .field textarea {
+  width: 100%; border: 1px solid var(--line); background: var(--raised); border-radius: 7px; padding: 6px 8px;
+}
+.group { display: grid; gap: 2px; }
+.group-head {
+  display: flex; align-items: center; gap: 8px; width: 100%; border: 0; background: transparent; padding: 6px 4px; text-align: left; border-radius: 6px;
+}
+.group-head:hover { background: var(--raised); }
+.group-head[aria-pressed="true"] { background: var(--accent-soft); }
+.dot { width: 10px; height: 10px; border-radius: 3px; flex: none; }
+.group-head .name { font-weight: 600; }
+.group-head .meta { margin-left: auto; color: var(--muted); font-family: var(--font-mono); font-size: 12px; font-variant-numeric: tabular-nums; }
+.item-row {
+  display: grid; grid-template-columns: 1fr auto; gap: 8px; border: 0; background: transparent; padding: 5px 8px 5px 22px; border-radius: 6px; text-align: left; width: 100%;
+}
+.item-row:hover { background: var(--raised); }
+.item-row.sel { background: var(--accent-soft); }
+.item-row.dim { opacity: 0.4; }
+.item-row .sub { color: var(--muted); font-size: 12px; }
+.item-row .val { font-family: var(--font-mono); font-size: 12px; color: var(--muted); font-variant-numeric: tabular-nums; }
+.pill { font-size: 10px; text-transform: uppercase; letter-spacing: 0.06em; padding: 1px 6px; border-radius: 99px; border: 1px solid currentColor; margin-left: 6px; }
+.captures { display: grid; gap: 8px; }
+.capture { display: grid; grid-template-columns: 56px 1fr; gap: 10px; align-items: center; }
+.capture img { width: 56px; height: 42px; object-fit: cover; border-radius: 5px; background: var(--line); }
+.capture .acts { display: flex; gap: 6px; flex-wrap: wrap; margin-top: 4px; }
+.empty-note { color: var(--muted); font-size: 13px; line-height: 1.45; margin: 0; }
+
+.viewport { position: relative; min-width: 0; min-height: 0; overflow: hidden; background: var(--scene); }
+.viewport canvas { display: block; touch-action: none; }
+.hint {
+  position: absolute; left: 12px; bottom: 12px; font-size: 12px; color: var(--muted);
+  background: color-mix(in srgb, var(--panel) 85%, transparent); border: 1px solid var(--line); border-radius: 8px; padding: 6px 10px; max-width: calc(100% - 24px);
+}
+.hint kbd { font-family: var(--font-mono); font-size: 11px; border: 1px solid var(--line); border-radius: 4px; padding: 0 4px; background: var(--raised); }
+.inspector {
+  position: absolute; top: 12px; right: 12px; width: 290px; max-width: calc(100% - 24px); max-height: calc(100% - 24px); overflow-y: auto;
+  background: var(--panel); border: 1px solid var(--line); border-radius: 12px; padding: 14px; display: grid; gap: 10px;
+  box-shadow: 0 10px 30px rgb(0 0 0 / 0.18);
+}
+.inspector h3 { margin: 0; font-family: var(--font-display); font-size: 18px; font-weight: 700; }
+.inspector .thumb { width: 100%; border-radius: 8px; max-height: 140px; object-fit: cover; }
+.field { display: grid; gap: 3px; font-size: 11px; color: var(--muted); }
+.field-row { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+.dims { font-family: var(--font-mono); font-size: 12px; color: var(--muted); }
+.row-acts { display: flex; gap: 6px; flex-wrap: wrap; }
+.banner {
+  position: absolute; top: 12px; left: 12px; max-width: calc(100% - 330px); background: var(--fg); color: var(--bg);
+  border-radius: 8px; padding: 6px 12px; font-size: 13px;
+}
+.drop {
+  position: absolute; inset: 12px; border: 2px dashed var(--accent); border-radius: 14px; display: grid; place-items: center;
+  background: color-mix(in srgb, var(--accent-soft) 70%, transparent); font-family: var(--font-display); font-size: 22px; pointer-events: none;
+}
+.progress {
+  position: absolute; inset: 0; display: grid; place-items: center; background: color-mix(in srgb, var(--scene) 70%, transparent);
+}
+.progress div { background: var(--panel); border: 1px solid var(--line); border-radius: 12px; padding: 16px 20px; min-width: 240px; display: grid; gap: 8px; }
+.progress .track { height: 6px; background: var(--line); border-radius: 99px; overflow: hidden; padding: 0; border: 0; }
+.progress .fill { height: 100%; width: 0; background: var(--accent); border-radius: 99px; padding: 0; border: 0; transition: width .2s; }
+.toast {
+  position: fixed; left: 50%; bottom: calc(20px + env(safe-area-inset-bottom, 0px)); transform: translateX(-50%);
+  background: var(--fg); color: var(--bg); padding: 8px 14px; border-radius: 8px; font-size: 13px; z-index: 50; max-width: calc(100% - 32px);
+}
+
+/* Tagging modal */
+.modal { position: fixed; inset: 0; background: rgb(0 0 0 / 0.55); display: grid; place-items: center; z-index: 40; padding: 16px; }
+.modal-card {
+  background: var(--panel); border: 1px solid var(--line); border-radius: 14px; width: min(1100px, 100%); max-height: 100%; overflow: auto;
+  display: grid; grid-template-columns: 1fr 280px; gap: 0;
+}
+.modal-stage { padding: 14px; display: grid; gap: 10px; min-width: 0; }
+.modal-stage h3 { margin: 0; font-family: var(--font-display); font-size: 18px; }
+.modal-stage p { margin: 0; color: var(--muted); font-size: 13px; }
+.tagwrap { position: relative; background: var(--scene); border-radius: 8px; overflow: hidden; }
+#tagCanvas { width: 100%; display: block; cursor: crosshair; touch-action: none; }
+.frames { display: flex; gap: 6px; overflow-x: auto; }
+.frames button { border: 2px solid transparent; padding: 0; border-radius: 6px; background: none; flex: none; }
+.frames button[aria-pressed="true"] { border-color: var(--accent); }
+.frames img { width: 72px; height: 50px; object-fit: cover; border-radius: 4px; display: block; }
+.modal-form { border-left: 1px solid var(--line); padding: 14px; display: grid; gap: 10px; align-content: start; }
+.taglist { display: grid; gap: 4px; font-size: 13px; }
+.taglist div { display: flex; gap: 6px; align-items: center; }
+
+.camera-only { display: none; }
+@media (pointer: coarse) { .camera-only { display: inline-block; } }
+.askform { display: grid; gap: 6px; }
+.askform textarea { width: 100%; border: 1px solid var(--line); background: var(--raised); border-radius: 7px; padding: 6px 8px; resize: vertical; }
+.askform button { justify-self: start; }
+.ai-out { background: var(--raised); border: 1px solid var(--line); border-left: 3px solid var(--accent); border-radius: 8px; padding: 10px 12px; font-size: 13px; line-height: 1.5; white-space: pre-wrap; }
+.ai-out .tips { margin: 6px 0 0; padding-left: 18px; white-space: normal; }
+.ai-label { font-size: 11px; text-transform: uppercase; letter-spacing: 0.08em; color: var(--accent); font-weight: 600; }
+.ai-off .ai-only { display: none !important; }
+.ai-fallback { display: none; }
+.ai-off .ai-fallback { display: inline; }
+@media (max-width: 760px) {
+  .app { height: auto; min-height: 100%; }
+  .main { grid-template-columns: 1fr; grid-template-rows: 62vh auto; }
+  aside.side { order: 2; border-right: 0; border-top: 1px solid var(--line); overflow: visible; }
+  .inspector { top: auto; bottom: 12px; max-height: 55%; }
+  .banner { max-width: calc(100% - 24px); }
+  .hint { display: none; }
+  .modal-card { grid-template-columns: 1fr; }
+  .modal-form { border-left: 0; border-top: 1px solid var(--line); }
+}
+@media (prefers-reduced-motion: reduce) { .progress .fill { transition: none; } }
+</style>
+
+<div class="app" id="app">
+  <header class="bar">
+    <div class="brand"><h1>Au<span>reality</span></h1><small id="spaceName">Sample apartment · 70 m²</small></div>
+    <div class="seg" role="group" aria-label="View">
+      <button id="view3d" aria-pressed="true">3D</button>
+      <button id="viewMap" aria-pressed="false">Floor map</button>
+    </div>
+    <button class="btn" id="sortBtn" aria-pressed="false">Sort space</button>
+    <button class="btn camera-only" id="cameraBtn">Take photo</button>
+    <button class="btn primary" id="importBtn">Add photos or video</button>
+    <input type="file" id="fileInput" accept="image/*,video/*" multiple hidden>
+    <input type="file" id="cameraInput" accept="image/*" capture="environment" hidden>
+  </header>
+
+  <div class="main">
+    <aside class="side">
+      <section>
+        <div class="stats">
+          <div class="stat"><b id="stCount">0</b><span>objects</span></div>
+          <div class="stat"><b id="stValue">0</b><span>est. value €</span></div>
+          <div class="stat"><b id="stArea">0</b><span>floor m²</span></div>
+        </div>
+        <input type="search" id="search" placeholder="Search objects, rooms, notes">
+        <div class="controls">
+          <label>Organize by
+            <select id="groupBy"><option value="category">Category</option><option value="room">Room</option><option value="status">Plan (keep / sell…)</option></select>
+          </label>
+          <label>Order
+            <select id="orderBy"><option value="name">Name</option><option value="value">Value</option><option value="size">Size</option></select>
+          </label>
+        </div>
+      </section>
+      <section>
+        <h2>Inventory</h2>
+        <div id="list"></div>
+      </section>
+      <section id="askSection" class="ai-only">
+        <h2>Ask about your space</h2>
+        <form id="askForm" class="askform">
+          <textarea id="askInput" rows="2" placeholder="What could I sell to raise €1,000? What fits in the bedroom?"></textarea>
+          <button class="btn primary small" id="askBtn">Ask AI</button>
+        </form>
+        <div class="ai-out" id="askOut" hidden></div>
+      </section>
+      <section>
+        <h2>Captures</h2>
+        <div class="captures" id="captures"></div>
+        <div class="row-acts"><button class="btn small danger" id="resetBtn">Reset to sample</button></div>
+      </section>
+    </aside>
+
+    <div class="viewport" id="viewport">
+      <div class="banner" id="banner" hidden></div>
+      <div class="hint" id="hint">Click an object to inspect · drag to move · <kbd>R</kbd> rotate · <kbd>Del</kbd> remove · right-drag to pan</div>
+      <div class="inspector" id="inspector" hidden></div>
+      <div class="drop" id="drop" hidden>Drop photos or a video to scan</div>
+      <div class="progress" id="progress" hidden><div><span id="progText">Reading files…</span><div class="track"><div class="fill" id="progFill"></div></div></div></div>
+    </div>
+  </div>
+</div>
+
+<div class="modal" id="tagModal" hidden>
+  <div class="modal-card" role="dialog" aria-modal="true" aria-labelledby="tagTitle">
+    <div class="modal-stage">
+      <h3 id="tagTitle">Tag objects</h3>
+      <p><span class="ai-only">Tap an object to identify it with AI, or drag</span><span class="ai-fallback">Drag</span> a box around it. Aureality places it in 3D using the depth estimated for that spot.</p>
+      <div class="tagwrap"><canvas id="tagCanvas"></canvas></div>
+      <div class="row-acts"><button type="button" class="btn small ai-only" id="detectAll">Find all objects with AI</button></div>
+      <div class="frames" id="tagFrames"></div>
+    </div>
+    <form class="modal-form" id="tagForm">
+      <div class="field">Name<input id="tagName" placeholder="Draw a box first" disabled required></div>
+      <div class="field">Category<select id="tagCat"></select></div>
+      <div class="field-row">
+        <div class="field">Plan<select id="tagStatus"></select></div>
+        <div class="field">Value €<input id="tagValue" type="number" min="0" step="1" value="0"></div>
+      </div>
+      <div class="ai-out" id="tagAi" hidden></div>
+      <button class="btn primary" id="tagAdd" disabled>Add to model</button>
+      <h2 style="font-size:11px;text-transform:uppercase;letter-spacing:.08em;color:var(--muted);margin:6px 0 0">Tagged in this capture</h2>
+      <div class="taglist" id="tagList"></div>
+      <button type="button" class="btn" id="tagDone">Done</button>
+    </form>
+  </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/three@0.147.0/build/three.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/three@0.147.0/examples/js/controls/OrbitControls.js"></script>
+<script>
+(() => {
+'use strict';
+const $ = (id) => document.getElementById(id);
+const STORE_KEY = 'aureality.v1';
+const DEG = Math.PI / 180;
+
+/* ---------- Vocabulary ---------- */
+const CATEGORIES = { Furniture: '#c9883a', Storage: '#8c6b52', Electronics: '#3f7fd6', Appliances: '#3c9ea0', Lighting: '#d9b02c', Decor: '#c95f86', Plants: '#4f9a5a', Other: '#8a8f9c' };
+const STATUSES = { Keep: '#4f9a5a', Sell: '#3f7fd6', Donate: '#c9883a', Repair: '#c24a4a' };
+const ROOM_HUES = ['#d9a441', '#5b8fd9', '#c76b9a', '#4fa38a', '#9a7bd1', '#d97b4f', '#6aa6c4', '#a3a34f'];
+
+/* ---------- Sample apartment ---------- */
+function sampleState() {
+  const ox = -5, oz = -3.5;
+  const rooms = [
+    { id: 'r1', name: 'Living room', x0: 0, z0: 0, x1: 6, z1: 7 },
+    { id: 'r2', name: 'Kitchen', x0: 6, z0: 0, x1: 10, z1: 3 },
+    { id: 'r3', name: 'Bedroom', x0: 6, z0: 3, x1: 10, z1: 7 },
+  ].map(r => ({ ...r, x0: r.x0 + ox, x1: r.x1 + ox, z0: r.z0 + oz, z1: r.z1 + oz }));
+  const L = 'Living room', K = 'Kitchen', B = 'Bedroom';
+  // name, category, room, w, h, d, x, z, rot°, elev, value €, plan
+  const raw = [
+    ['Sofa', 'Furniture', L, 2.2, .85, .95, 3, 6.3, 180, 0, 900, 'Keep'],
+    ['Rug', 'Decor', L, 2.4, .02, 1.7, 3, 5, 0, 0, 210, 'Keep'],
+    ['Coffee table', 'Furniture', L, 1.1, .45, .6, 3, 5, 0, 0, 180, 'Keep'],
+    ['Armchair', 'Furniture', L, .85, .9, .85, 1.1, 4.8, 90, 0, 350, 'Sell'],
+    ['TV stand', 'Furniture', L, 1.6, .5, .4, 3, .3, 0, 0, 220, 'Keep'],
+    ['Television', 'Electronics', L, 1.3, .75, .08, 3, .3, 0, .5, 650, 'Keep'],
+    ['Speaker', 'Electronics', L, .25, 1, .25, 1.9, .3, 0, 0, 300, 'Sell'],
+    ['Bookshelf', 'Storage', L, 1, 2, .35, .25, 2, 90, 0, 260, 'Keep'],
+    ['Old books', 'Decor', L, .8, .25, .25, .25, 2, 90, 1.2, 120, 'Donate'],
+    ['Floor lamp', 'Lighting', L, .35, 1.6, .35, .5, 6.5, 0, 0, 90, 'Keep'],
+    ['Monstera', 'Plants', L, .55, 1.2, .55, 5.5, 6.4, 0, 0, 45, 'Keep'],
+    ['Fridge', 'Appliances', K, .7, 1.85, .7, 6.45, .4, 0, 0, 800, 'Keep'],
+    ['Kitchen counter', 'Storage', K, 2.4, .9, .6, 8.5, .3, 0, 0, 1100, 'Keep'],
+    ['Microwave', 'Appliances', K, .5, .3, .4, 9.3, .3, 0, .9, 120, 'Repair'],
+    ['Kettle', 'Appliances', K, .2, .25, .2, 8, .3, 0, .9, 40, 'Keep'],
+    ['Dining table', 'Furniture', K, 1.2, .75, .8, 8, 1.9, 0, 0, 400, 'Keep'],
+    ['Dining chair', 'Furniture', K, .45, .9, .45, 7.6, 2.6, 180, 0, 80, 'Keep'],
+    ['Dining chair', 'Furniture', K, .45, .9, .45, 8.4, 2.6, 180, 0, 80, 'Keep'],
+    ['Bed', 'Furniture', B, 1.6, .5, 2.0, 8.6, 5.9, 0, 0, 700, 'Keep'],
+    ['Nightstand', 'Storage', B, .45, .5, .4, 7.5, 6.75, 0, 0, 70, 'Keep'],
+    ['Nightstand', 'Storage', B, .45, .5, .4, 9.7, 6.75, 0, 0, 70, 'Donate'],
+    ['Wardrobe', 'Storage', B, 1.2, 2.1, .6, 9.65, 3.9, -90, 0, 500, 'Keep'],
+    ['Desk', 'Furniture', B, 1.2, .75, .6, 6.35, 4.1, 90, 0, 250, 'Keep'],
+    ['Desk chair', 'Furniture', B, .5, .95, .5, 7.0, 4.1, -90, 0, 140, 'Donate'],
+    ['Laptop', 'Electronics', B, .34, .02, .24, 6.35, 3.9, 90, .75, 1200, 'Keep'],
+    ['Desk lamp', 'Lighting', B, .15, .45, .15, 6.25, 4.5, 0, .75, 35, 'Keep'],
+    ['Standing mirror', 'Decor', B, .6, 1.5, .04, 6.1, 6.2, 90, 0, 90, 'Sell'],
+  ];
+  const items = raw.map((r, i) => ({
+    id: 'i' + (i + 1), name: r[0], category: r[1], room: r[2], w: r[3], h: r[4], d: r[5],
+    x: r[6] + ox, z: r[7] + oz, rot: r[8], elev: r[9], value: r[10], status: r[11], notes: '',
+  }));
+  return { name: 'Sample apartment', rooms, items, scans: [], nextId: raw.length + 1 };
+}
+
+let state = load() || sampleState();
+function load() {
+  try { const s = JSON.parse(localStorage.getItem(STORE_KEY)); return s && s.items ? s : null; } catch (e) { return null; }
+}
+let saveTimer = null;
+function save() {
+  clearTimeout(saveTimer);
+  saveTimer = setTimeout(() => {
+    try { localStorage.setItem(STORE_KEY, JSON.stringify(state)); }
+    catch (e) {
+      // Big captures may not fit browser storage; keep objects, drop stored frames.
+      try { localStorage.setItem(STORE_KEY, JSON.stringify({ ...state, scans: state.scans.map(s => ({ ...s, frames: s.frames.slice(0, 1) })) })); } catch (e2) {}
+    }
+  }, 250);
+}
+
+/* ---------- UI state ---------- */
+const ui = { selected: null, hovered: null, groupBy: 'category', orderBy: 'name', search: '', isolate: null, sorted: false, view: '3d', confirmDelete: false };
+
+/* ---------- Three.js scene ---------- */
+const viewport = $('viewport');
+const renderer = new THREE.WebGLRenderer({ antialias: true });
+renderer.setPixelRatio(Math.min(devicePixelRatio, 2));
+renderer.outputEncoding = THREE.sRGBEncoding;
+renderer.shadowMap.enabled = true;
+renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+viewport.prepend(renderer.domElement);
+
+const scene = new THREE.Scene();
+const persp = new THREE.PerspectiveCamera(45, 1, 0.05, 400);
+persp.position.set(-2, 11, 12);
+const ortho = new THREE.OrthographicCamera(-10, 10, 10, -10, 0.1, 400);
+ortho.up.set(0, 0, -1);
+ortho.position.set(0, 60, 0);
+const ctl3d = new THREE.OrbitControls(persp, renderer.domElement);
+ctl3d.target.set(0, 0, 0); ctl3d.enableDamping = true; ctl3d.maxPolarAngle = 88 * DEG; ctl3d.minDistance = 1.5; ctl3d.maxDistance = 80;
+const ctlMap = new THREE.OrbitControls(ortho, renderer.domElement);
+ctlMap.enableRotate = false; ctlMap.screenSpacePanning = true; ctlMap.enabled = false; ctlMap.minZoom = 0.3; ctlMap.maxZoom = 8;
+ctlMap.mouseButtons = { LEFT: THREE.MOUSE.PAN, MIDDLE: THREE.MOUSE.DOLLY, RIGHT: THREE.MOUSE.PAN };
+const camera = () => (ui.view === 'map' ? ortho : persp);
+const controls = () => (ui.view === 'map' ? ctlMap : ctl3d);
+
+scene.add(new THREE.HemisphereLight(0xffffff, 0x8890a0, 0.75));
+const sun = new THREE.DirectionalLight(0xffffff, 0.75);
+sun.position.set(-8, 18, 10); sun.castShadow = true;
+sun.shadow.mapSize.set(2048, 2048);
+Object.assign(sun.shadow.camera, { left: -40, right: 40, top: 40, bottom: -40, near: 1, far: 80 });
+scene.add(sun);
+
+const worldGroup = new THREE.Group(); scene.add(worldGroup);   // rooms, walls, labels
+const itemGroup = new THREE.Group(); scene.add(itemGroup);
+const cloudGroup = new THREE.Group(); scene.add(cloudGroup);
+const sortGroup = new THREE.Group(); scene.add(sortGroup);
+
+function cssVar(name) { return getComputedStyle(document.documentElement).getPropertyValue(name).trim(); }
+function applyTheme() {
+  scene.background = new THREE.Color(cssVar('--scene'));
+  buildWorld(); buildItems();
+}
+matchMedia('(prefers-color-scheme: dark)').addEventListener('change', applyTheme);
+new MutationObserver(applyTheme).observe(document.documentElement, { attributes: true, attributeFilter: ['data-theme'] });
+
+function isDark() { const c = new THREE.Color(cssVar('--scene')); return c.r + c.g + c.b < 1; }
+
+/* text helpers */
+function textCanvas(lines, { size = 44, pad = 18, bg = null, fg = '#111', sub = '#666' } = {}) {
+  const c = document.createElement('canvas'); const g = c.getContext('2d');
+  const fontMain = `600 ${size}px ${'IBM Plex Sans, system-ui, sans-serif'}`;
+  const fontSub = `400 ${Math.round(size * 0.68)}px ${'IBM Plex Mono, monospace'}`;
+  g.font = fontMain; let w = g.measureText(lines[0]).width;
+  if (lines[1]) { g.font = fontSub; w = Math.max(w, g.measureText(lines[1]).width); }
+  const h = size * 1.25 + (lines[1] ? size * 0.9 : 0) + pad * 2;
+  c.width = Math.ceil(w + pad * 2); c.height = Math.ceil(h);
+  if (bg) { g.fillStyle = bg; const r = 14; g.beginPath(); g.roundRect ? g.roundRect(0, 0, c.width, c.height, r) : g.rect(0, 0, c.width, c.height); g.fill(); }
+  g.textBaseline = 'top'; g.font = fontMain; g.fillStyle = fg; g.fillText(lines[0], pad, pad);
+  if (lines[1]) { g.font = fontSub; g.fillStyle = sub; g.fillText(lines[1], pad, pad + size * 1.2); }
+  return c;
+}
+function makeSprite(lines, height = 0.32, opts = {}) {
+  const dark = isDark();
+  const c = textCanvas(lines, { bg: dark ? 'rgba(28,33,44,0.92)' : 'rgba(255,255,255,0.94)', fg: dark ? '#e8eaef' : '#161a22', sub: dark ? '#98a1b3' : '#5c6577', ...opts });
+  const tex = new THREE.CanvasTexture(c); tex.encoding = THREE.sRGBEncoding; tex.anisotropy = 4;
+  const sp = new THREE.Sprite(new THREE.SpriteMaterial({ map: tex, depthTest: false, transparent: true }));
+  sp.scale.set(height * c.width / c.height, height, 1); sp.renderOrder = 10;
+  return sp;
+}
+function makeFloorText(lines, width) {
+  const dark = isDark();
+  const c = textCanvas(lines, { size: 60, fg: dark ? '#c9ceda' : '#3a4150', sub: dark ? '#7f889a' : '#7a8293' });
+  const tex = new THREE.CanvasTexture(c); tex.encoding = THREE.sRGBEncoding; tex.anisotropy = 8;
+  const w = Math.min(width, c.width / 150); const h = w * c.height / c.width;
+  const m = new THREE.Mesh(new THREE.PlaneGeometry(w, h), new THREE.MeshBasicMaterial({ map: tex, transparent: true, depthWrite: false }));
+  m.rotation.x = -Math.PI / 2; m.position.y = 0.012;
+  return m;
+}
+function disposeGroup(g) {
+  g.traverse(o => { if (o.geometry) o.geometry.dispose(); if (o.material) [].concat(o.material).forEach(m => { if (m.map) m.map.dispose(); m.dispose(); }); });
+  g.clear();
+}
+
+/* rooms + walls */
+const roomArea = (r) => Math.abs((r.x1 - r.x0) * (r.z1 - r.z0));
+function roomColor(name) { const i = state.rooms.findIndex(r => r.name === name); return ROOM_HUES[(i < 0 ? 7 : i) % ROOM_HUES.length]; }
+function buildWorld() {
+  disposeGroup(worldGroup);
+  const floorCol = new THREE.Color(cssVar('--floor')), wallCol = new THREE.Color(cssVar('--wall'));
+  const ground = new THREE.Mesh(new THREE.PlaneGeometry(400, 400), new THREE.ShadowMaterial({ opacity: isDark() ? 0.35 : 0.12 }));
+  ground.rotation.x = -Math.PI / 2; ground.position.y = -0.005; ground.receiveShadow = true; worldGroup.add(ground);
+  const grid = new THREE.GridHelper(200, 200, wallCol, wallCol); grid.material.transparent = true; grid.material.opacity = 0.18; grid.position.y = -0.004; worldGroup.add(grid);
+  const wallMat = new THREE.MeshStandardMaterial({ color: wallCol, roughness: 0.9 });
+  for (const r of state.rooms) {
+    const w = r.x1 - r.x0, d = r.z1 - r.z0, cx = (r.x0 + r.x1) / 2, cz = (r.z0 + r.z1) / 2;
+    const tint = floorCol.clone().lerp(new THREE.Color(roomColor(r.name)), r.scanId ? 0.04 : 0.1);
+    const floor = new THREE.Mesh(new THREE.PlaneGeometry(w, d), new THREE.MeshStandardMaterial({ color: tint, roughness: 1 }));
+    floor.rotation.x = -Math.PI / 2; floor.position.set(cx, 0, cz); floor.receiveShadow = true; worldGroup.add(floor);
+    const t = 0.08, hgt = r.scanId ? 0.04 : 0.32;
+    [[cx, r.z0, w + t, t], [cx, r.z1, w + t, t], [r.x0, cz, t, d + t], [r.x1, cz, t, d + t]].forEach(([x, z, ww, dd]) => {
+      const m = new THREE.Mesh(new THREE.BoxGeometry(ww, hgt, dd), wallMat); m.position.set(x, hgt / 2, z); m.castShadow = true; m.receiveShadow = true; worldGroup.add(m);
+    });
+    const label = makeFloorText([r.name, `${roomArea(r).toFixed(1)} m²`], Math.min(w, d) * 0.6);
+    label.position.x = cx; label.position.z = r.scanId ? r.z1 - 0.7 : cz + (r.name === 'Living room' ? -1.6 : 0);
+    if (!r.scanId && r.name !== 'Living room') label.position.z = r.z0 + 0.55 + (label.geometry.parameters.height / 2);
+    worldGroup.add(label);
+  }
+}
+
+/* items */
+const meshById = new Map();
+function groupKey(it) { return ui.groupBy === 'room' ? it.room : ui.groupBy === 'status' ? it.status : it.category; }
+function groupColor(key) {
+  if (ui.groupBy === 'room') return roomColor(key);
+  if (ui.groupBy === 'status') return STATUSES[key] || '#888';
+  return CATEGORIES[key] || CATEGORIES.Other;
+}
+const texCache = new Map();
+function thumbTexture(url) {
+  if (texCache.has(url)) return texCache.get(url);
+  const t = new THREE.TextureLoader().load(url); t.encoding = THREE.sRGBEncoding; texCache.set(url, t); return t;
+}
+function buildItems() {
+  meshById.forEach(o => { o.traverse(c => { if (c.geometry) c.geometry.dispose(); if (c.material) [].concat(c.material).forEach(m => { if (m.map && !texCache.has(m.map.__url)) m.map.dispose?.(); m.dispose(); }); }); });
+  itemGroup.clear(); meshById.clear();
+  for (const it of state.items) {
+    const g = new THREE.Group(); g.userData.id = it.id;
+    const col = new THREE.Color(groupColor(groupKey(it)));
+    const base = new THREE.MeshStandardMaterial({ color: col, roughness: 0.65, metalness: 0.05, transparent: true });
+    let mat = base;
+    if (it.thumb) {
+      const face = new THREE.MeshStandardMaterial({ map: thumbTexture(it.thumb), roughness: 0.8, transparent: true });
+      mat = [base, base, base, base, face, base];
+    }
+    const box = new THREE.Mesh(new THREE.BoxGeometry(it.w, Math.max(it.h, 0.02), it.d), mat);
+    box.position.y = it.elev + it.h / 2; box.castShadow = true; box.receiveShadow = true; box.userData.id = it.id;
+    const edges = new THREE.LineSegments(new THREE.EdgesGeometry(box.geometry), new THREE.LineBasicMaterial({ color: col.clone().multiplyScalar(0.55), transparent: true }));
+    edges.position.copy(box.position);
+    g.add(box, edges);
+    g.position.set(it.x, 0, it.z); g.rotation.y = -it.rot * DEG;
+    g.userData.box = box; g.userData.edges = edges;
+    itemGroup.add(g); meshById.set(it.id, g);
+  }
+  layoutTargets(true); refreshHighlights();
+}
+
+/* ---------- Sorting ("sort space") ---------- */
+let sortTargets = new Map();
+function apartmentBounds() {
+  const b = new THREE.Box2(new THREE.Vector2(Infinity, Infinity), new THREE.Vector2(-Infinity, -Infinity));
+  state.rooms.forEach(r => { b.expandByPoint(new THREE.Vector2(r.x0, r.z0)); b.expandByPoint(new THREE.Vector2(r.x1, r.z1)); });
+  return b;
+}
+function layoutTargets(snap = false) {
+  sortTargets = new Map();
+  disposeGroup(sortGroup);
+  if (ui.sorted) {
+    const groups = groupedItems();
+    const b = apartmentBounds();
+    let z = b.max.y + 3;
+    const x0 = b.min.x;
+    for (const [key, items] of groups) {
+      const label = makeFloorText([key, `${items.length} objects · €${fmt(sum(items, 'value'))}`], 4);
+      label.position.set(x0 + label.geometry.parameters.width / 2, 0, z);
+      sortGroup.add(label);
+      let x = x0 + label.geometry.parameters.width + 0.8, rowDepth = 0;
+      const sortedItems = [...items].sort((a, b) => b.w * b.d * b.h - a.w * a.d * a.h);
+      for (const it of sortedItems) {
+        sortTargets.set(it.id, { x: x + it.w / 2, z: z, rot: 0, elev: 0 });
+        x += it.w + 0.35; rowDepth = Math.max(rowDepth, it.d);
+      }
+      z += Math.max(rowDepth, 1) + 1.6;
+    }
+  }
+  if (snap) meshById.forEach((g, id) => { const t = target(id); g.position.set(t.x, 0, t.z); g.rotation.y = -t.rot * DEG; g.userData.box.position.y = t.elev + itemById(id).h / 2; g.userData.edges.position.y = g.userData.box.position.y; });
+}
+function target(id) { const it = itemById(id); return sortTargets.get(id) || { x: it.x, z: it.z, rot: it.rot, elev: it.elev }; }
+function setSorted(on) {
+  ui.sorted = on;
+  $('sortBtn').setAttribute('aria-pressed', String(on)); $('sortBtn').classList.toggle('on', on);
+  $('sortBtn').textContent = on ? 'Back to rooms' : 'Sort space';
+  layoutTargets(false);
+  showBanner(on ? `Sorted by ${$('groupBy').selectedOptions[0].textContent.toLowerCase()}. Your room layout is kept; click "Back to rooms" to return.` : null);
+  frameAll();
+}
+
+/* ---------- Highlights / labels ---------- */
+let selLabel = null, hovLabel = null;
+function matches(it) {
+  if (ui.isolate && groupKey(it) !== ui.isolate) return false;
+  if (!ui.search) return true;
+  const q = ui.search.toLowerCase();
+  return [it.name, it.category, it.room, it.status, it.notes].some(v => (v || '').toLowerCase().includes(q));
+}
+function refreshHighlights() {
+  for (const it of state.items) {
+    const g = meshById.get(it.id); if (!g) continue;
+    const on = matches(it); const sel = ui.selected === it.id;
+    const op = on ? 1 : 0.12;
+    [].concat(g.userData.box.material).forEach(m => { m.opacity = op; m.emissive && m.emissive.set(sel ? 0x553300 : 0x000000); });
+    g.userData.edges.material.opacity = on ? 1 : 0.15;
+    g.userData.edges.material.color.set(sel ? cssVar('--accent') : new THREE.Color(groupColor(groupKey(it))).multiplyScalar(0.55));
+    g.userData.box.castShadow = on;
+  }
+  updateLabels();
+}
+function labelFor(id) {
+  const it = itemById(id); if (!it) return null;
+  const sp = makeSprite([it.name, `${it.w.toFixed(2)}×${it.d.toFixed(2)}×${it.h.toFixed(2)} m`], ui.view === 'map' ? 0.55 : 0.36);
+  sp.userData.id = id; return sp;
+}
+function updateLabels() {
+  [selLabel, hovLabel].forEach(l => { if (l) { scene.remove(l); l.material.map.dispose(); l.material.dispose(); } });
+  selLabel = ui.selected ? labelFor(ui.selected) : null;
+  hovLabel = ui.hovered && ui.hovered !== ui.selected ? labelFor(ui.hovered) : null;
+  [selLabel, hovLabel].forEach(l => l && scene.add(l));
+}
+function placeLabels() {
+  [selLabel, hovLabel].forEach(l => {
+    if (!l) return; const g = meshById.get(l.userData.id); const it = itemById(l.userData.id); if (!g || !it) return;
+    l.position.set(g.position.x, g.userData.box.position.y + it.h / 2 + 0.35, g.position.z);
+  });
+}
+
+/* ---------- Helpers ---------- */
+const itemById = (id) => state.items.find(i => i.id === id);
+const sum = (arr, k) => arr.reduce((s, i) => s + (Number(i[k]) || 0), 0);
+const fmt = (n) => Math.round(n).toLocaleString('en-US');
+function groupedItems() {
+  const map = new Map();
+  const order = ui.groupBy === 'category' ? Object.keys(CATEGORIES) : ui.groupBy === 'status' ? Object.keys(STATUSES) : state.rooms.map(r => r.name);
+  order.forEach(k => map.set(k, []));
+  for (const it of state.items) { const k = groupKey(it) || 'Other'; if (!map.has(k)) map.set(k, []); map.get(k).push(it); }
+  const cmp = ui.orderBy === 'value' ? (a, b) => b.value - a.value : ui.orderBy === 'size' ? (a, b) => b.w * b.d * b.h - a.w * a.d * a.h : (a, b) => a.name.localeCompare(b.name);
+  for (const [k, v] of map) { if (!v.length) map.delete(k); else v.sort(cmp); }
+  return map;
+}
+function roomAt(x, z) { return state.rooms.find(r => x >= Math.min(r.x0, r.x1) && x <= Math.max(r.x0, r.x1) && z >= Math.min(r.z0, r.z1) && z <= Math.max(r.z0, r.z1)); }
+let toastTimer;
+function toast(msg) {
+  let t = document.querySelector('.toast'); if (!t) { t = document.createElement('div'); t.className = 'toast'; t.setAttribute('role', 'status'); document.body.append(t); }
+  t.textContent = msg; t.hidden = false; clearTimeout(toastTimer); toastTimer = setTimeout(() => (t.hidden = true), 2600);
+}
+function showBanner(msg) { const b = $('banner'); b.hidden = !msg; if (msg) b.textContent = msg; }
+const esc = (s) => String(s ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+
+/* ---------- Sidebar ---------- */
+function renderStats() {
+  $('stCount').textContent = state.items.length;
+  $('stValue').textContent = fmt(sum(state.items, 'value'));
+  const area = state.rooms.filter(r => !r.scanId).reduce((s, r) => s + roomArea(r), 0);
+  $('stArea').textContent = area.toFixed(0);
+  $('spaceName').textContent = `${state.name} · ${area.toFixed(0)} m²${state.scans.length ? ` · ${state.scans.length} capture${state.scans.length > 1 ? 's' : ''}` : ''}`;
+}
+function renderList() {
+  const list = $('list'); list.innerHTML = '';
+  for (const [key, items] of groupedItems()) {
+    const wrap = document.createElement('div'); wrap.className = 'group';
+    const head = document.createElement('button'); head.className = 'group-head'; head.setAttribute('aria-pressed', String(ui.isolate === key));
+    head.title = 'Show only this group';
+    head.innerHTML = `<span class="dot" style="background:${groupColor(key)}"></span><span class="name">${esc(key)}</span><span class="meta">${items.length} · €${fmt(sum(items, 'value'))}</span>`;
+    head.onclick = () => { ui.isolate = ui.isolate === key ? null : key; renderList(); refreshHighlights(); };
+    wrap.append(head);
+    for (const it of items) {
+      const row = document.createElement('button'); row.className = 'item-row' + (ui.selected === it.id ? ' sel' : '') + (matches(it) ? '' : ' dim');
+      const second = ui.groupBy === 'room' ? it.category : it.room;
+      const pill = ui.groupBy !== 'status' && it.status !== 'Keep' ? `<span class="pill" style="color:${STATUSES[it.status]}">${esc(it.status)}</span>` : '';
+      row.innerHTML = `<span><span>${esc(it.name)}</span>${pill}<br><span class="sub">${esc(second)}</span></span><span class="val">€${fmt(it.value)}</span>`;
+      row.onclick = () => { select(it.id); focusOn(it.id); };
+      wrap.append(row);
+    }
+    list.append(wrap);
+  }
+  if (!state.items.length) list.innerHTML = '<p class="empty-note">No objects yet. Add photos or a video of a room, then tag what is in it.</p>';
+}
+function renderCaptures() {
+  const el = $('captures'); el.innerHTML = '';
+  if (!state.scans.length) {
+    el.innerHTML = '<p class="empty-note">Add photos or a short walk-through video. Each capture becomes a 3D point cloud next to the floor plan, and the objects you tag join the inventory.</p>';
+    return;
+  }
+  for (const s of state.scans) {
+    const n = state.items.filter(i => i.scanId === s.id).length;
+    const div = document.createElement('div'); div.className = 'capture';
+    div.innerHTML = `<img alt="" src="${s.frames[0]}"><div><b>${esc(s.name)}</b><div class="sub" style="color:var(--muted);font-size:12px">${s.frames.length} frame${s.frames.length > 1 ? 's' : ''} · ${n} tagged</div><div class="acts"></div></div>`;
+    const acts = div.querySelector('.acts');
+    const mk = (label, fn, cls = '') => { const b = document.createElement('button'); b.className = 'btn small ' + cls; b.textContent = label; b.onclick = fn; acts.append(b); return b; };
+    mk('Tag objects', () => openTagger(s.id));
+    mk('Go to', () => focusPoint(s.origin.x, s.origin.z, 9));
+    const rm = mk('Remove', () => {
+      if (rm.dataset.armed) { removeScan(s.id); } else { rm.dataset.armed = '1'; rm.textContent = 'Confirm remove'; setTimeout(() => { if (rm.isConnected) { delete rm.dataset.armed; rm.textContent = 'Remove'; } }, 3000); }
+    }, 'danger');
+    el.append(div);
+  }
+}
+function renderAll() { renderStats(); renderList(); renderCaptures(); renderInspector(); }
+
+/* ---------- Inspector ---------- */
+function renderInspector() {
+  const el = $('inspector'); const it = ui.selected && itemById(ui.selected);
+  el.hidden = !it; if (!it) return;
+  const opts = (obj, cur) => Object.keys(obj).map(k => `<option ${k === cur ? 'selected' : ''}>${k}</option>`).join('');
+  const roomOpts = state.rooms.map(r => `<option ${r.name === it.room ? 'selected' : ''}>${esc(r.name)}</option>`).join('');
+  el.innerHTML = `
+    ${it.thumb ? `<img class="thumb" alt="Photo crop of ${esc(it.name)}" src="${it.thumb}">` : ''}
+    <div class="field">Name<input id="fName" value="${esc(it.name)}"></div>
+    <div class="field-row">
+      <div class="field">Category<select id="fCat">${opts(CATEGORIES, it.category)}</select></div>
+      <div class="field">Plan<select id="fStatus">${opts(STATUSES, it.status)}</select></div>
+    </div>
+    <div class="field-row">
+      <div class="field">Room<select id="fRoom">${roomOpts}</select></div>
+      <div class="field">Value €<input id="fValue" type="number" min="0" value="${it.value}"></div>
+    </div>
+    <div class="dims">W ${it.w.toFixed(2)} · D ${it.d.toFixed(2)} · H ${it.h.toFixed(2)} m · ${(it.w * it.d).toFixed(2)} m² footprint</div>
+    <div class="ai-only" style="display:grid;gap:6px">${it.ai ? aiHtml(it.ai) : ''}<div class="row-acts"><button class="btn small" id="fAsk">${it.ai ? 'Ask AI again' : 'Get AI context'}</button></div></div>
+    <div class="field">Notes<textarea id="fNotes" rows="2" placeholder="Brand, condition, where it goes…">${esc(it.notes)}</textarea></div>
+    <div class="row-acts">
+      <button class="btn small" id="fRot">Rotate 90°</button>
+      <button class="btn small" id="fDup">Duplicate</button>
+      <button class="btn small danger" id="fDel">${ui.confirmDelete ? 'Confirm remove' : 'Remove'}</button>
+      <button class="btn small" id="fClose" style="margin-left:auto">Close</button>
+    </div>`;
+  const upd = (k, v, rebuild = false) => { it[k] = v; save(); renderStats(); renderList(); if (rebuild) { buildItems(); } else updateLabels(); };
+  $('fName').oninput = (e) => upd('name', e.target.value);
+  $('fCat').onchange = (e) => upd('category', e.target.value, true);
+  $('fStatus').onchange = (e) => upd('status', e.target.value, true);
+  $('fRoom').onchange = (e) => { const r = state.rooms.find(r => r.name === e.target.value); it.room = e.target.value; if (r && !roomAt(it.x, it.z)?.name !== r.name) { it.x = (r.x0 + r.x1) / 2; it.z = (r.z0 + r.z1) / 2; } save(); renderAll(); buildItems(); };
+  $('fValue').oninput = (e) => upd('value', Math.max(0, Number(e.target.value) || 0));
+  $('fNotes').oninput = (e) => upd('notes', e.target.value);
+  $('fRot').onclick = () => rotateSel(90);
+  $('fDup').onclick = () => { const c = { ...it, id: 'i' + state.nextId++, x: it.x + 0.3, z: it.z + 0.3 }; state.items.push(c); save(); buildItems(); select(c.id); };
+  $('fDel').onclick = () => { if (ui.confirmDelete) removeSel(); else { ui.confirmDelete = true; renderInspector(); } };
+  $('fClose').onclick = () => select(null);
+  $('fAsk').onclick = () => askAboutItem(it);
+}
+function select(id) {
+  ui.selected = id; ui.confirmDelete = false;
+  renderList(); renderInspector(); refreshHighlights();
+}
+function rotateSel(deg) { const it = itemById(ui.selected); if (!it) return; it.rot = ((it.rot + deg) % 360 + 360) % 360; save(); renderInspector(); }
+function removeSel() {
+  const it = itemById(ui.selected); if (!it) return;
+  state.items = state.items.filter(i => i.id !== it.id); ui.selected = null; save(); buildItems(); renderAll(); toast(`Removed ${it.name}`);
+}
+
+/* ---------- Camera helpers ---------- */
+let camAnim = null;
+function focusPoint(x, z, dist = 6) {
+  if (ui.view === 'map') { camAnim = { target: new THREE.Vector3(x, 0, z), zoom: Math.max(ortho.zoom, 1.6) }; return; }
+  const t = new THREE.Vector3(x, 0.4, z);
+  const dir = persp.position.clone().sub(ctl3d.target).normalize();
+  camAnim = { target: t, pos: t.clone().add(dir.multiplyScalar(dist)) };
+}
+function focusOn(id) { const t = target(id); focusPoint(t.x, t.z, 5); }
+function sceneBox() {
+  const b = new THREE.Box3();
+  state.rooms.forEach(r => { b.expandByPoint(new THREE.Vector3(r.x0, 0, r.z0)); b.expandByPoint(new THREE.Vector3(r.x1, 0, r.z1)); });
+  sortTargets.forEach(t => b.expandByPoint(new THREE.Vector3(t.x, 0, t.z + 1)));
+  if (b.isEmpty()) b.set(new THREE.Vector3(-5, 0, -5), new THREE.Vector3(5, 0, 5));
+  return b;
+}
+function frameAll() {
+  const b = sceneBox(); const c = b.getCenter(new THREE.Vector3()); const s = b.getSize(new THREE.Vector3());
+  if (ui.view === 'map') {
+    const asp = viewport.clientWidth / Math.max(1, viewport.clientHeight);
+    const zoom = Math.min(20 * asp / (s.x + 2), 20 / (s.z + 2));
+    camAnim = { target: new THREE.Vector3(c.x, 0, c.z), zoom };
+  } else {
+    const r = Math.max(s.x, s.z) * 0.85 + 4;
+    camAnim = { target: c.clone(), pos: new THREE.Vector3(c.x - r * 0.25, r * 0.85, c.z + r * 0.9) };
+  }
+}
+function resize() {
+  const w = viewport.clientWidth, h = viewport.clientHeight; if (!w || !h) return;
+  renderer.setSize(w, h); persp.aspect = w / h; persp.updateProjectionMatrix();
+  const asp = w / h; Object.assign(ortho, { left: -10 * asp, right: 10 * asp, top: 10, bottom: -10 }); ortho.updateProjectionMatrix();
+}
+new ResizeObserver(resize).observe(viewport);
+
+function setView(v) {
+  ui.view = v;
+  $('view3d').setAttribute('aria-pressed', String(v === '3d')); $('viewMap').setAttribute('aria-pressed', String(v === 'map'));
+  ctl3d.enabled = v === '3d'; ctlMap.enabled = v === 'map';
+  $('hint').innerHTML = v === 'map'
+    ? 'Floor map · drag objects to move them between rooms · drag empty space to pan · scroll to zoom'
+    : 'Click an object to inspect · drag to move · <kbd>R</kbd> rotate · <kbd>Del</kbd> remove · right-drag to pan';
+  updateLabels(); frameAll();
+}
+
+/* ---------- Picking & dragging ---------- */
+const ray = new THREE.Raycaster(); const ndc = new THREE.Vector2();
+const floorPlane = new THREE.Plane(new THREE.Vector3(0, 1, 0), 0);
+let drag = null, down = null;
+function setNdc(e) { const r = renderer.domElement.getBoundingClientRect(); ndc.set(((e.clientX - r.left) / r.width) * 2 - 1, -((e.clientY - r.top) / r.height) * 2 + 1); ray.setFromCamera(ndc, camera()); }
+function pick(e) {
+  setNdc(e);
+  const boxes = []; meshById.forEach(g => { const it = itemById(g.userData.id); if (it && matches(it)) boxes.push(g.userData.box); });
+  const hit = ray.intersectObjects(boxes, false)[0];
+  return hit ? hit.object.userData.id : null;
+}
+function floorPoint(e) { setNdc(e); const p = new THREE.Vector3(); return ray.ray.intersectPlane(floorPlane, p) ? p : null; }
+renderer.domElement.addEventListener('pointerdown', (e) => {
+  down = { x: e.clientX, y: e.clientY };
+  if (e.button !== 0) return;
+  const id = pick(e);
+  if (id) {
+    if (ui.sorted) { select(id); return; }
+    const it = itemById(id); const p = floorPoint(e);
+    if (p) { drag = { id, dx: it.x - p.x, dz: it.z - p.z, moved: false }; controls().enabled = false; renderer.domElement.setPointerCapture(e.pointerId); }
+    if (ui.selected !== id) select(id);
+  }
+});
+renderer.domElement.addEventListener('pointermove', (e) => {
+  if (drag) {
+    const p = floorPoint(e); if (!p) return; const it = itemById(drag.id);
+    it.x = Math.round((p.x + drag.dx) * 20) / 20; it.z = Math.round((p.z + drag.dz) * 20) / 20; drag.moved = true;
+    renderer.domElement.style.cursor = 'grabbing';
+    return;
+  }
+  if (e.pointerType === 'mouse' && e.buttons === 0) {
+    const id = pick(e);
+    renderer.domElement.style.cursor = id ? (ui.sorted ? 'pointer' : 'grab') : '';
+    if (id !== ui.hovered) { ui.hovered = id; updateLabels(); }
+  }
+});
+renderer.domElement.addEventListener('pointerup', (e) => {
+  if (drag) {
+    const it = itemById(drag.id);
+    if (drag.moved) {
+      const r = roomAt(it.x, it.z);
+      if (r && r.name !== it.room) { it.room = r.name; toast(`${it.name} moved to ${r.name}`); }
+      save(); renderAll();
+    }
+    drag = null; controls().enabled = true; renderer.domElement.style.cursor = '';
+    return;
+  }
+  if (down && Math.hypot(e.clientX - down.x, e.clientY - down.y) < 4 && e.button === 0 && !pick(e)) select(null);
+});
+addEventListener('keydown', (e) => {
+  if (e.target.closest('input, textarea, select') || !$('tagModal').hidden) return;
+  if (!ui.selected) return;
+  if (e.key === 'r' || e.key === 'R') rotateSel(e.shiftKey ? -15 : 15);
+  else if (e.key === 'Delete' || e.key === 'Backspace') { e.preventDefault(); removeSel(); }
+  else if (e.key === 'Escape') select(null);
+});
+
+/* ---------- Render loop ---------- */
+function tick() {
+  requestAnimationFrame(tick);
+  const k = matchMedia('(prefers-reduced-motion: reduce)').matches ? 1 : 0.16;
+  meshById.forEach((g, id) => {
+    const it = itemById(id); if (!it) return; const t = target(id);
+    g.position.x += (t.x - g.position.x) * k; g.position.z += (t.z - g.position.z) * k;
+    let dr = -t.rot * DEG - g.rotation.y; dr = Math.atan2(Math.sin(dr), Math.cos(dr)); g.rotation.y += dr * k;
+    const y = t.elev + it.h / 2; g.userData.box.position.y += (y - g.userData.box.position.y) * k; g.userData.edges.position.y = g.userData.box.position.y;
+  });
+  if (camAnim) {
+    const c = controls(); const kk = 0.12;
+    c.target.lerp(camAnim.target, kk);
+    if (ui.view === 'map') {
+      ortho.position.set(c.target.x, 60, c.target.z);
+      if (camAnim.zoom) { ortho.zoom += (camAnim.zoom - ortho.zoom) * kk; ortho.updateProjectionMatrix(); }
+    } else if (camAnim.pos) persp.position.lerp(camAnim.pos, kk);
+    if (c.target.distanceTo(camAnim.target) < 0.01 && (!camAnim.pos || persp.position.distanceTo(camAnim.pos) < 0.02)) camAnim = null;
+  }
+  controls().update();
+  placeLabels();
+  renderer.render(scene, camera());
+}
+
+/* ---------- Capture → depth → point cloud ---------- */
+const FOV_H = 62 * DEG, EYE = 1.35, DEPTH_W = 160;
+const runtime = new Map(); // scanId -> { frames: [{W,H,depth,rgb}], group }
+
+function loadImage(src) { return new Promise((res, rej) => { const i = new Image(); i.onload = () => res(i); i.onerror = () => rej(new Error('This image could not be read.')); i.src = src; }); }
+function downscale(src, maxW = 640) {
+  const w = src.videoWidth || src.naturalWidth || src.width, h = src.videoHeight || src.naturalHeight || src.height;
+  const s = Math.min(1, maxW / w); const c = document.createElement('canvas'); c.width = Math.round(w * s); c.height = Math.round(h * s);
+  c.getContext('2d').drawImage(src, 0, 0, c.width, c.height); return c.toDataURL('image/jpeg', 0.78);
+}
+async function videoFrames(file, n, onStep) {
+  const url = URL.createObjectURL(file);
+  const v = document.createElement('video'); v.muted = true; v.playsInline = true; v.preload = 'auto'; v.src = url;
+  await new Promise((res, rej) => { v.onloadeddata = res; v.onerror = () => rej(new Error(`${file.name}: this video format cannot be read by the browser. Try MP4 or WebM.`)); });
+  const dur = isFinite(v.duration) ? v.duration : 1; const out = [];
+  for (let i = 0; i < n; i++) {
+    await new Promise((res) => { v.onseeked = res; v.currentTime = Math.min(dur - 0.05, dur * (i + 0.5) / n); });
+    out.push(downscale(v)); onStep && onStep(i + 1, n);
+  }
+  URL.revokeObjectURL(url); return out;
+}
+function boxBlur(src, W, H, r) {
+  const tmp = new Float32Array(W * H), out = new Float32Array(W * H);
+  for (let y = 0; y < H; y++) { let acc = 0, cnt = 0; for (let x = -r; x < W; x++) { const a = x + r, b = x - r - 1; if (a < W) { acc += src[y * W + a]; cnt++; } if (b >= 0) { acc -= src[y * W + b]; cnt--; } if (x >= 0) tmp[y * W + x] = acc / cnt; } }
+  for (let x = 0; x < W; x++) { let acc = 0, cnt = 0; for (let y = -r; y < H; y++) { const a = y + r, b = y - r - 1; if (a < H) { acc += tmp[a * W + x]; cnt++; } if (b >= 0) { acc -= tmp[b * W + x]; cnt--; } if (y >= 0) out[y * W + x] = acc / cnt; } }
+  return out;
+}
+/* Quick monocular depth guess. Combines a room-shaped prior (far at eye level, near at floor and ceiling edges),
+   detail density (busy areas tend to be close furniture) and brightness (windows and lit walls tend to be far).
+   It is a stand-in for a learned depth model; see the roadmap. */
+async function estimateDepth(dataUrl) {
+  const img = await loadImage(dataUrl);
+  const W = DEPTH_W, H = Math.round(DEPTH_W * img.naturalHeight / img.naturalWidth);
+  const c = document.createElement('canvas'); c.width = W; c.height = H; const g = c.getContext('2d'); g.drawImage(img, 0, 0, W, H);
+  const px = g.getImageData(0, 0, W, H).data; const lum = new Float32Array(W * H); const rgb = new Float32Array(W * H * 3);
+  for (let i = 0; i < W * H; i++) { const r = px[i * 4] / 255, gg = px[i * 4 + 1] / 255, b = px[i * 4 + 2] / 255; rgb.set([r, gg, b], i * 3); lum[i] = 0.299 * r + 0.587 * gg + 0.114 * b; }
+  const grad = new Float32Array(W * H);
+  for (let y = 1; y < H - 1; y++) for (let x = 1; x < W - 1; x++) { const i = y * W + x; grad[i] = Math.abs(lum[i + 1] - lum[i - 1]) + Math.abs(lum[i + W] - lum[i - W]); }
+  const det = boxBlur(grad, W, H, 5); let mx = 1e-6; det.forEach(v => (mx = Math.max(mx, v)));
+  const bright = boxBlur(lum, W, H, 6);
+  const raw = new Float32Array(W * H);
+  for (let y = 0; y < H; y++) {
+    const v = y / (H - 1); const prior = 1 - Math.min(1, Math.abs(v - 0.42) * 1.75);
+    for (let x = 0; x < W; x++) {
+      const u = x / (W - 1); const side = 1 - Math.min(1, Math.abs(u - 0.5) * 0.6);
+      const i = y * W + x;
+      raw[i] = 0.55 * prior * side + 0.25 * (1 - det[i] / mx) + 0.2 * bright[i];
+    }
+  }
+  const depth = boxBlur(raw, W, H, 3);
+  let lo = Infinity, hi = -Infinity; depth.forEach(d => { lo = Math.min(lo, d); hi = Math.max(hi, d); });
+  for (let i = 0; i < depth.length; i++) depth[i] = 1.1 + ((depth[i] - lo) / (hi - lo + 1e-6)) * 3.9; // metres, 1.1–5.0
+  return { W, H, depth, rgb };
+}
+function unproject(u, v, z, W, H) {
+  const t = Math.tan(FOV_H / 2), asp = W / H;
+  return new THREE.Vector3((u - 0.5) * 2 * t * z, EYE + (0.5 - v) * 2 * (t / asp) * z, -z);
+}
+function frameAngle(scan, i) { const n = scan.frames.length; if (n === 1) return 0; const span = Math.min(330, n * 40) * DEG; return -span / 2 + span * i / (n - 1); }
+function frameObject(scan, i) { const o = new THREE.Object3D(); o.position.set(scan.origin.x, 0, scan.origin.z); o.rotation.y = -frameAngle(scan, i); o.updateMatrixWorld(); return o; }
+
+async function buildScanRuntime(scan, onStep) {
+  const rt = { frames: [], group: new THREE.Group() };
+  for (let i = 0; i < scan.frames.length; i++) {
+    const f = await estimateDepth(scan.frames[i]); rt.frames.push(f);
+    const pos = [], col = []; const step = 1;
+    for (let y = 0; y < f.H; y += step) for (let x = 0; x < f.W; x += step) {
+      const k = y * f.W + x; const p = unproject(x / (f.W - 1), y / (f.H - 1), f.depth[k], f.W, f.H);
+      if (p.y < 0) p.y = 0.01;
+      pos.push(p.x, p.y, p.z); col.push(f.rgb[k * 3], f.rgb[k * 3 + 1], f.rgb[k * 3 + 2]);
+    }
+    const geo = new THREE.BufferGeometry();
+    geo.setAttribute('position', new THREE.Float32BufferAttribute(pos, 3));
+    const ca = new THREE.Float32BufferAttribute(col, 3); geo.setAttribute('color', ca);
+    const pts = new THREE.Points(geo, new THREE.PointsMaterial({ size: 0.045, vertexColors: true, sizeAttenuation: true }));
+    const fo = frameObject(scan, i); pts.position.copy(fo.position); pts.rotation.copy(fo.rotation);
+    rt.group.add(pts);
+    onStep && onStep(i + 1, scan.frames.length);
+    await new Promise(r => setTimeout(r, 0));
+  }
+  // camera marker
+  const cam = new THREE.Mesh(new THREE.ConeGeometry(0.18, 0.35, 4), new THREE.MeshBasicMaterial({ color: new THREE.Color(cssVar('--accent')) }));
+  cam.rotation.x = Math.PI / 2; cam.position.set(scan.origin.x, EYE, scan.origin.z); rt.group.add(cam);
+  cloudGroup.add(rt.group); runtime.set(scan.id, rt);
+  return rt;
+}
+function nextScanOrigin() {
+  const b = apartmentBounds(); const n = state.scans.length;
+  return { x: b.max.x + 8 + n * 13, z: (b.min.y + b.max.y) / 2 };
+}
+
+async function importFiles(files) {
+  files = [...files].filter(f => /^(image|video)\//.test(f.type));
+  if (!files.length) { toast('Choose image or video files.'); return; }
+  const prog = $('progress'), txt = $('progText'), fill = $('progFill');
+  const setP = (t, frac) => { txt.textContent = t; fill.style.width = Math.round(frac * 100) + '%'; };
+  prog.hidden = false;
+  try {
+    const images = files.filter(f => f.type.startsWith('image/')), videos = files.filter(f => f.type.startsWith('video/'));
+    const groups = [];
+    if (images.length) {
+      const frames = [];
+      for (let i = 0; i < images.length; i++) {
+        setP(`Reading photo ${i + 1} of ${images.length}`, i / images.length);
+        const url = URL.createObjectURL(images[i]); const img = await loadImage(url); frames.push(downscale(img)); URL.revokeObjectURL(url);
+      }
+      groups.push({ name: images.length === 1 ? images[0].name.replace(/\.[^.]+$/, '') : `${images.length} photos`, frames: frames.slice(0, 12) });
+    }
+    for (const v of videos) {
+      const frames = await videoFrames(v, 8, (i, n) => setP(`Extracting frames from ${v.name}: ${i}/${n}`, i / n));
+      groups.push({ name: v.name.replace(/\.[^.]+$/, ''), frames });
+    }
+    let last = null;
+    for (const g of groups) {
+      const id = 's' + state.nextId++; const origin = nextScanOrigin();
+      const scan = { id, name: g.name.slice(0, 40), frames: g.frames, origin };
+      state.scans.push(scan);
+      state.rooms.push({ id: 'r' + id, scanId: id, name: scan.name, x0: origin.x - 5.5, x1: origin.x + 5.5, z0: origin.z - 5.5, z1: origin.z + 5.5 });
+      await buildScanRuntime(scan, (i, n) => setP(`Estimating depth for ${scan.name}: frame ${i}/${n}`, i / n));
+      last = scan;
+    }
+    save(); buildWorld(); renderAll();
+    if (last) { setView('3d'); if (ui.sorted) setSorted(false); focusPoint(last.origin.x, last.origin.z - 2, 11); toast('Capture added. Tag the objects you want to keep track of.'); setTimeout(() => openTagger(last.id), 700); }
+  } catch (err) {
+    toast(err.message || 'Import failed.');
+  } finally { prog.hidden = true; }
+}
+function removeScan(id) {
+  const rt = runtime.get(id); if (rt) { disposeGroup(rt.group); cloudGroup.remove(rt.group); runtime.delete(id); }
+  state.scans = state.scans.filter(s => s.id !== id);
+  state.rooms = state.rooms.filter(r => r.scanId !== id);
+  state.items = state.items.filter(i => i.scanId !== id);
+  save(); buildWorld(); buildItems(); renderAll();
+}
+
+$('importBtn').onclick = () => $('fileInput').click();
+$('cameraBtn').onclick = () => $('cameraInput').click();
+$('cameraInput').onchange = (e) => { importFiles(e.target.files); e.target.value = ''; };
+$('fileInput').onchange = (e) => { importFiles(e.target.files); e.target.value = ''; };
+let dragDepth = 0;
+viewport.addEventListener('dragenter', (e) => { e.preventDefault(); dragDepth++; $('drop').hidden = false; });
+viewport.addEventListener('dragover', (e) => e.preventDefault());
+viewport.addEventListener('dragleave', () => { if (--dragDepth <= 0) { dragDepth = 0; $('drop').hidden = true; } });
+viewport.addEventListener('drop', (e) => { e.preventDefault(); dragDepth = 0; $('drop').hidden = true; importFiles(e.dataTransfer.files); });
+
+/* ---------- Tagging ---------- */
+const tag = { scanId: null, frame: 0, img: null, rect: null, drawing: null };
+const tc = $('tagCanvas'), tg = tc.getContext('2d');
+$('tagCat').innerHTML = Object.keys(CATEGORIES).map(k => `<option>${k}</option>`).join('');
+$('tagStatus').innerHTML = Object.keys(STATUSES).map(k => `<option>${k}</option>`).join('');
+async function openTagger(scanId) {
+  const scan = state.scans.find(s => s.id === scanId); if (!scan) return;
+  if (!runtime.get(scanId)) await buildScanRuntime(scan);
+  tag.scanId = scanId; $('tagTitle').textContent = `Tag objects in ${scan.name}`;
+  $('tagModal').hidden = false;
+  const fr = $('tagFrames'); fr.innerHTML = '';
+  fr.hidden = scan.frames.length < 2;
+  scan.frames.forEach((f, i) => { const b = document.createElement('button'); b.type = 'button'; b.innerHTML = `<img alt="Frame ${i + 1}" src="${f}">`; b.onclick = () => showFrame(i); fr.append(b); });
+  await showFrame(0);
+}
+async function showFrame(i) {
+  const scan = state.scans.find(s => s.id === tag.scanId);
+  tag.frame = i; tag.rect = null; tag.ai = null; tag.tap = null; $('tagAi').hidden = true; tag.img = await loadImage(scan.frames[i]);
+  [...$('tagFrames').children].forEach((b, j) => b.setAttribute('aria-pressed', String(j === i)));
+  tc.width = tag.img.naturalWidth; tc.height = tag.img.naturalHeight;
+  setTagForm(false); drawTag(); renderTagList();
+}
+function drawTag() {
+  if (!tag.img) return;
+  tg.drawImage(tag.img, 0, 0);
+  const W = tc.width, H = tc.height; const lw = Math.max(2, W / 320);
+  tg.lineWidth = lw; tg.font = `600 ${Math.max(12, W / 40)}px IBM Plex Sans, sans-serif`;
+  for (const it of state.items.filter(i => i.scanId === tag.scanId && i.frame === tag.frame)) {
+    const r = it.rect; const col = CATEGORIES[it.category] || '#fff';
+    tg.strokeStyle = col; tg.strokeRect(r.u0 * W, r.v0 * H, (r.u1 - r.u0) * W, (r.v1 - r.v0) * H);
+    const tw = tg.measureText(it.name).width + 10; tg.fillStyle = col; tg.fillRect(r.u0 * W, r.v0 * H - W / 30, tw, W / 30); tg.fillStyle = '#fff'; tg.fillText(it.name, r.u0 * W + 5, r.v0 * H - W / 30 * 0.25);
+  }
+  const r = tag.drawing || tag.rect;
+  if (tag.tap) { tg.fillStyle = '#ffd25e'; tg.strokeStyle = '#000'; tg.beginPath(); tg.arc(tag.tap.u * W, tag.tap.v * H, lw * 4, 0, Math.PI * 2); tg.fill(); tg.stroke(); }
+  if (r) { tg.setLineDash([lw * 3, lw * 2]); tg.strokeStyle = '#ffd25e'; tg.strokeRect(Math.min(r.u0, r.u1) * W, Math.min(r.v0, r.v1) * H, Math.abs(r.u1 - r.u0) * W, Math.abs(r.v1 - r.v0) * H); tg.setLineDash([]); }
+}
+function tagUV(e) { const b = tc.getBoundingClientRect(); return { u: Math.min(1, Math.max(0, (e.clientX - b.left) / b.width)), v: Math.min(1, Math.max(0, (e.clientY - b.top) / b.height)) }; }
+tc.addEventListener('pointerdown', (e) => { const p = tagUV(e); tag.drawing = { u0: p.u, v0: p.v, u1: p.u, v1: p.v }; tc.setPointerCapture(e.pointerId); });
+tc.addEventListener('pointermove', (e) => { if (!tag.drawing) return; const p = tagUV(e); tag.drawing.u1 = p.u; tag.drawing.v1 = p.v; drawTag(); });
+tc.addEventListener('pointerup', () => {
+  const d = tag.drawing; tag.drawing = null; if (!d) return;
+  const r = { u0: Math.min(d.u0, d.u1), v0: Math.min(d.v0, d.v1), u1: Math.max(d.u0, d.u1), v1: Math.max(d.v0, d.v1) };
+  if (r.u1 - r.u0 < 0.02 || r.v1 - r.v0 < 0.02) {
+    if (sampleFn) identifyAt(d.u0, d.v0); else { drawTag(); toast('Drag a box around the object.'); }
+    return;
+  }
+  tag.rect = r; tag.ai = null; $('tagAi').hidden = true; drawTag(); setTagForm(true);
+});
+function setTagForm(on) {
+  $('tagName').disabled = !on; $('tagAdd').disabled = !on; $('tagName').placeholder = on ? 'e.g. Armchair' : 'Draw a box first';
+  if (on) { $('tagName').value = ''; $('tagName').focus(); }
+}
+function renderTagList() {
+  const items = state.items.filter(i => i.scanId === tag.scanId);
+  $('tagList').innerHTML = items.length ? items.map(i => `<div><span class="dot" style="background:${CATEGORIES[i.category]}"></span>${esc(i.name)}<span style="margin-left:auto;color:var(--muted);font-family:var(--font-mono);font-size:12px">${i.w.toFixed(1)}×${i.h.toFixed(1)} m</span></div>`).join('') : '<p class="empty-note">Nothing tagged yet.</p>';
+}
+$('tagForm').addEventListener('submit', (e) => {
+  e.preventDefault(); if (!tag.rect) return;
+  const scan = state.scans.find(s => s.id === tag.scanId); const f = runtime.get(scan.id).frames[tag.frame]; const r = tag.rect;
+  // median depth inside the box
+  const ds = [];
+  for (let y = Math.floor(r.v0 * (f.H - 1)); y <= Math.ceil(r.v1 * (f.H - 1)); y++) for (let x = Math.floor(r.u0 * (f.W - 1)); x <= Math.ceil(r.u1 * (f.W - 1)); x++) ds.push(f.depth[y * f.W + x]);
+  ds.sort((a, b) => a - b); const z = ds[Math.floor(ds.length * 0.35)] || 2.5;
+  const tl = unproject(r.u0, r.v0, z, f.W, f.H), br = unproject(r.u1, r.v1, z, f.W, f.H);
+  let w = Math.max(0.1, br.x - tl.x); const elev = Math.max(0, br.y); let h = Math.max(0.05, tl.y - elev);
+  let d = Math.min(1.2, Math.max(0.1, Math.min(w, h) * 0.6));
+  const sz = tag.ai && tag.ai.size_m; // AI's real-world size estimate beats the rough depth guess
+  if (sz && +sz.w > 0 && +sz.h > 0) { w = Math.min(6, +sz.w); h = Math.min(4, +sz.h); d = Math.min(4, Math.max(0.02, +sz.d || d)); }
+  const local = new THREE.Vector3((tl.x + br.x) / 2, 0, -z - d / 2);
+  const fo = frameObject(scan, tag.frame); const world = local.applyMatrix4(fo.matrixWorld);
+  // crop thumbnail
+  const cw = Math.max(8, Math.round((r.u1 - r.u0) * tc.width)), ch = Math.max(8, Math.round((r.v1 - r.v0) * tc.height));
+  const s = Math.min(1, 192 / Math.max(cw, ch)); const cc = document.createElement('canvas'); cc.width = Math.round(cw * s); cc.height = Math.round(ch * s);
+  cc.getContext('2d').drawImage(tag.img, r.u0 * tc.width, r.v0 * tc.height, cw, ch, 0, 0, cc.width, cc.height);
+  const item = {
+    id: 'i' + state.nextId++, name: $('tagName').value.trim() || 'Object', category: $('tagCat').value, status: $('tagStatus').value, room: scan.name,
+    w: +w.toFixed(2), h: +h.toFixed(2), d: +d.toFixed(2), x: +world.x.toFixed(2), z: +world.z.toFixed(2), rot: frameAngle(scan, tag.frame) / DEG, elev: +elev.toFixed(2),
+    value: Math.max(0, Number($('tagValue').value) || 0), notes: '', scanId: scan.id, frame: tag.frame, rect: r, thumb: cc.toDataURL('image/jpeg', 0.8),
+    ai: tag.ai ? { context: tag.ai.context || '', tips: tag.ai.tips || [] } : undefined,
+  };
+  state.items.push(item); tag.rect = null; tag.ai = null; $('tagAi').hidden = true; save(); buildItems(); renderAll(); drawTag(); renderTagList(); setTagForm(false);
+  toast(`${item.name} added to the model`);
+});
+$('tagDone').onclick = () => { $('tagModal').hidden = true; const s = state.scans.find(s => s.id === tag.scanId); if (s) focusPoint(s.origin.x, s.origin.z - 2, 9); };
+$('tagModal').addEventListener('keydown', (e) => { if (e.key === 'Escape') $('tagDone').click(); });
+
+/* ---------- AI context (Claude, on the viewer's own account) ---------- */
+let sampleFn = null, aiCanSee = false;
+document.body.classList.add('ai-off');
+if (window.claude && claude.use) {
+  claude.use('sample').then(async (s) => {
+    if (!s) return;
+    sampleFn = s;
+    try { aiCanSee = !!(await s.limits()).images; } catch (e) { aiCanSee = false; }
+    document.body.classList.remove('ai-off');
+  }).catch(() => {});
+} else if (location.protocol.startsWith('http')) {
+  // Self-hosted: the Aureality server answers with the owner's Claude API key.
+  fetch('api/health').then(r => r.json()).then(h => { if (h && h.ai) { sampleFn = serverSample(h.needsCode); aiCanSee = true; document.body.classList.remove('ai-off'); } }).catch(() => {});
+}
+function serverSample(needsCode) {
+  const KEY = 'aureality.code';
+  const getCode = () => { try { return localStorage.getItem(KEY) || ''; } catch (e) { return ''; } };
+  const toDataUrl = (b) => new Promise((res, rej) => { const fr = new FileReader(); fr.onload = () => res(fr.result); fr.onerror = rej; fr.readAsDataURL(b); });
+  async function call(input, opts = {}, json = false) {
+    if (needsCode && !getCode()) {
+      const c = window.prompt('Enter the Aureality access code');
+      if (!c) throw { code: 'not_granted', message: 'No access code.' };
+      try { localStorage.setItem(KEY, c.trim()); } catch (e) {}
+    }
+    const images = opts.images ? await Promise.all([].concat(opts.images).map(toDataUrl)) : [];
+    const r = await fetch('api/sample', {
+      method: 'POST', signal: opts.signal,
+      headers: { 'Content-Type': 'application/json', 'X-Aureality-Code': getCode() },
+      body: JSON.stringify({ input, images, json, tier: opts.modelTier }),
+    }).catch(() => { throw { code: 'upstream_error', message: 'Network error' }; });
+    const data = await r.json().catch(() => ({}));
+    if (!r.ok) {
+      if (r.status === 401) { try { localStorage.removeItem(KEY); } catch (e) {} throw { code: 'bad_code', message: 'Wrong access code.' }; }
+      throw { code: data.code || 'upstream_error', message: data.message || 'AI request failed' };
+    }
+    opts.onText && opts.onText({ text: data.text, delta: data.text });
+    return data;
+  }
+  const fn = (input, opts) => call(input, opts);
+  fn.json = async (input, opts) => {
+    const { text } = await call(input, opts, true);
+    const tryParse = (t) => { try { return JSON.parse(t); } catch (e) { return undefined; } };
+    let v = tryParse(text);
+    if (v === undefined) { const m = /```(?:json)?\s*([\s\S]*?)```/.exec(text); if (m) v = tryParse(m[1]); }
+    if (v === undefined) { const a = text.search(/[\[{]/), b = Math.max(text.lastIndexOf('}'), text.lastIndexOf(']')); if (a >= 0 && b > a) v = tryParse(text.slice(a, b + 1)); }
+    if (v === undefined) throw { code: 'invalid_json', message: 'Could not read the AI answer', text };
+    return v;
+  };
+  fn.limits = async () => ({ maxPromptBytes: 262144, images: { maxCount: 5 } });
+  return fn;
+}
+const CAT_LIST = Object.keys(CATEGORIES).join(', ');
+function aiError(e) {
+  switch (e && e.code) {
+    case 'not_granted': case 'sampling_disabled': case 'not_declared': case 'capability_disabled':
+      sampleFn = null; document.body.classList.add('ai-off'); return 'AI is turned off for this page.';
+    case 'rate_limited': return 'Too many AI requests right now. Try again in a minute.';
+    case 'bad_code': return 'Wrong access code. Try again and enter the code your host gave you.';
+    case 'refused': return 'The AI could not answer this one. Try a different object.';
+    case 'invalid_json': return 'The AI answer could not be read. Try again.';
+    case 'cancelled': return '';
+    default: return 'The AI request failed. Try again.';
+  }
+}
+function aiHtml(ai) {
+  const tips = (ai.tips || []).filter(Boolean).slice(0, 4);
+  return `<div class="ai-out"><div class="ai-label">AI context</div>${esc(ai.context || '')}${tips.length ? `<ul class="tips">${tips.map(t => `<li>${esc(t)}</li>`).join('')}</ul>` : ''}</div>`;
+}
+function dataUrlToBlob(url) {
+  const [head, b64] = url.split(','); const bin = atob(b64); const a = new Uint8Array(bin.length);
+  for (let i = 0; i < bin.length; i++) a[i] = bin.charCodeAt(i);
+  return new Blob([a], { type: head.match(/:(.*?);/)[1] });
+}
+function cropBlob(img, u, v, frac) {
+  const W = img.naturalWidth, H = img.naturalHeight; const s = Math.round(Math.min(W, H) * frac);
+  const x = Math.max(0, Math.min(W - s, u * W - s / 2)), y = Math.max(0, Math.min(H - s, v * H - s / 2));
+  const c = document.createElement('canvas'); c.width = c.height = Math.min(512, s);
+  c.getContext('2d').drawImage(img, x, y, s, s, 0, 0, c.width, c.height);
+  return new Promise(res => c.toBlob(res, 'image/jpeg', 0.85));
+}
+function cleanBox(b) {
+  if (!b) return null; const n = (k) => Math.min(1, Math.max(0, Number(b[k])));
+  const r = { u0: Math.min(n('u0'), n('u1')), v0: Math.min(n('v0'), n('v1')), u1: Math.max(n('u0'), n('u1')), v1: Math.max(n('v0'), n('v1')) };
+  return [r.u0, r.v0, r.u1, r.v1].some(isNaN) || r.u1 - r.u0 < 0.01 || r.v1 - r.v0 < 0.01 ? null : r;
+}
+const OBJECT_SHAPE = `{"name": short everyday name, "category": one of [${CAT_LIST}], "box": {"u0","v0","u1","v1"} the object's bounding box in the FULL photo as fractions of width and height from the top-left, "size_m": {"w","h","d"} realistic size in metres, "value_eur": rough second-hand value in euros as a number, "plan": one of Keep, Sell, Donate, Repair (your suggestion), "context": 2-3 plain sentences on what it is and what is visible (material, style, likely brand, condition), "tips": up to 3 short practical tips (care, resale, placement)}`;
+
+async function identifyAt(u, v) {
+  if (!sampleFn || !tag.img) return;
+  tag.tap = { u, v }; tag.rect = null; drawTag();
+  const box = $('tagAi'); box.hidden = false; box.innerHTML = '<div class="ai-label">AI context</div>Looking at the spot you tapped…';
+  try {
+    const scan = state.scans.find(s => s.id === tag.scanId);
+    const images = aiCanSee ? [await cropBlob(tag.img, u, v, 0.4), dataUrlToBlob(scan.frames[tag.frame])] : undefined;
+    if (!images) throw { code: 'images_unavailable' };
+    const ai = await sampleFn.json(
+      `You help people catalogue the things in their home. Image 1 is a close crop centred on the point the user tapped. Image 2 is the full photo; the tapped point is at u=${u.toFixed(3)}, v=${v.toFixed(3)} (fractions of width and height from the top-left). Identify the single physical object at the tapped point. Reply with only one JSON object: ${OBJECT_SHAPE}`,
+      { images, modelTier: 'default' });
+    tag.tap = null;
+    tag.ai = ai; tag.rect = cleanBox(ai.box) || { u0: Math.max(0, u - 0.08), v0: Math.max(0, v - 0.08), u1: Math.min(1, u + 0.08), v1: Math.min(1, v + 0.08) };
+    drawTag(); setTagForm(true);
+    $('tagName').value = ai.name || '';
+    if (CATEGORIES[ai.category]) $('tagCat').value = ai.category;
+    if (STATUSES[ai.plan]) $('tagStatus').value = ai.plan;
+    $('tagValue').value = Math.max(0, Math.round(Number(ai.value_eur) || 0));
+    box.innerHTML = aiHtml(ai).replace(/^<div class="ai-out">|<\/div>$/g, '');
+  } catch (e) {
+    tag.tap = null; drawTag();
+    const msg = e.code === 'images_unavailable' ? 'Image questions are not available in this view. Drag a box instead.' : aiError(e);
+    if (msg) box.textContent = msg; else box.hidden = true;
+  }
+}
+$('detectAll').onclick = async () => {
+  if (!sampleFn || !tag.img) return;
+  const btn = $('detectAll'); btn.disabled = true; btn.textContent = 'Finding objects…';
+  try {
+    const scan = state.scans.find(s => s.id === tag.scanId);
+    const list = await sampleFn.json(
+      `You help people catalogue the things in their home. List the distinct movable or notable physical objects in this photo (furniture, appliances, electronics, decor, plants), at most 12, largest first. Skip walls, floors, windows and ceilings. Reply with only a JSON array of objects shaped like: ${OBJECT_SHAPE}`,
+      { images: [dataUrlToBlob(scan.frames[tag.frame])], modelTier: 'default' });
+    let n = 0;
+    for (const ai of Array.isArray(list) ? list : []) {
+      const r = cleanBox(ai.box); if (!r) continue;
+      tag.rect = r; tag.ai = ai;
+      $('tagName').value = ai.name || 'Object';
+      $('tagCat').value = CATEGORIES[ai.category] ? ai.category : 'Other';
+      $('tagStatus').value = STATUSES[ai.plan] ? ai.plan : 'Keep';
+      $('tagValue').value = Math.max(0, Math.round(Number(ai.value_eur) || 0));
+      $('tagForm').requestSubmit(); n++;
+    }
+    toast(n ? `Added ${n} objects. Check them and remove any mistakes.` : 'No objects found in this frame.');
+  } catch (e) { const m = aiError(e); if (m) toast(m); }
+  finally { btn.disabled = false; btn.textContent = 'Find all objects with AI'; }
+};
+async function askAboutItem(it) {
+  if (!sampleFn) return;
+  const btn = $('fAsk'); if (btn) { btn.disabled = true; btn.textContent = 'Asking…'; }
+  try {
+    const facts = `Name: ${it.name}. Category: ${it.category}. Room: ${it.room}. Size: ${it.w}×${it.d}×${it.h} m (W×D×H). Estimated value: €${it.value}. Owner's plan: ${it.status}. Notes: ${it.notes || 'none'}.`;
+    const withImg = it.thumb && aiCanSee;
+    const ai = await sampleFn.json(
+      `You help people manage the things in their home. ${withImg ? 'The image shows the object. ' : ''}Here is what the owner recorded: ${facts}\nGive useful context for this object and the owner's plan for it. Reply with only a JSON object: {"context": 2-3 plain sentences, "tips": up to 3 short practical tips that fit the plan (for Sell: where and for how much; for Donate: who takes it; for Repair: likely fix; for Keep: care or placement)}`,
+      withImg ? { images: [dataUrlToBlob(it.thumb)] } : {});
+    it.ai = { context: ai.context || '', tips: ai.tips || [] }; save();
+  } catch (e) { const m = aiError(e); if (m) toast(m); }
+  if (ui.selected === it.id) renderInspector();
+}
+$('askForm').addEventListener('submit', async (e) => {
+  e.preventDefault(); if (!sampleFn) return;
+  const q = $('askInput').value.trim(); if (!q) return;
+  const out = $('askOut'); out.hidden = false; out.textContent = 'Thinking…'; $('askBtn').disabled = true;
+  const inv = state.items.map(i => `${i.name} | ${i.category} | ${i.room} | ${i.w}x${i.d}x${i.h} m | €${i.value} | plan ${i.status}${i.notes ? ' | ' + i.notes : ''}`).join('\n');
+  const rooms = state.rooms.map(r => `${r.name}: ${roomArea(r).toFixed(1)} m² (${Math.abs(r.x1 - r.x0).toFixed(1)} × ${Math.abs(r.z1 - r.z0).toFixed(1)} m)`).join('\n');
+  try {
+    await sampleFn(`You are Aureality, an assistant for organising a home. Answer the owner's question using only this inventory. Be concrete, name objects, keep it under 150 words, plain text without markdown headings.\n\nRooms:\n${rooms}\n\nObjects (name | category | room | size | value | plan):\n${inv.slice(0, 20000)}\n\nQuestion: ${q}`,
+      { onText: ({ text }) => { out.textContent = text; } });
+  } catch (err) { const m = aiError(err); out.textContent = err.text || m; }
+  finally { $('askBtn').disabled = false; }
+});
+
+/* ---------- Wiring ---------- */
+$('view3d').onclick = () => setView('3d');
+$('viewMap').onclick = () => setView('map');
+$('sortBtn').onclick = () => setSorted(!ui.sorted);
+$('search').oninput = (e) => { ui.search = e.target.value.trim(); renderList(); refreshHighlights(); };
+$('groupBy').onchange = (e) => { ui.groupBy = e.target.value; ui.isolate = null; buildItems(); renderList(); if (ui.sorted) setSorted(true); };
+$('orderBy').onchange = (e) => { ui.orderBy = e.target.value; renderList(); if (ui.sorted) layoutTargets(); };
+const resetBtn = $('resetBtn');
+resetBtn.onclick = () => {
+  if (!resetBtn.dataset.armed) { resetBtn.dataset.armed = '1'; resetBtn.textContent = 'Click again to erase your changes'; setTimeout(() => { delete resetBtn.dataset.armed; resetBtn.textContent = 'Reset to sample'; }, 3500); return; }
+  runtime.forEach(rt => { disposeGroup(rt.group); cloudGroup.remove(rt.group); }); runtime.clear();
+  state = sampleState(); ui.selected = null; ui.isolate = null; save(); setSorted(false); buildWorld(); buildItems(); renderAll(); frameAll();
+  delete resetBtn.dataset.armed; resetBtn.textContent = 'Reset to sample';
+};
+
+/* ---------- Boot ---------- */
+resize();
+scene.background = new THREE.Color(cssVar('--scene'));
+buildWorld(); buildItems(); renderAll();
+camAnim = { target: new THREE.Vector3(0, 0, 0.5), pos: new THREE.Vector3(-3, 10.5, 11.5) };
+tick();
+(async () => { for (const s of state.scans) { try { await buildScanRuntime(s); } catch (e) {} } })();
+document.fonts && document.fonts.ready.then(() => { buildWorld(); updateLabels(); });
+window.__aureality = { state: () => state, importFiles, setSorted, setView };
+})();
+</script>
+
+</body>
+</html>

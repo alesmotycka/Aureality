@@ -1,0 +1,32 @@
+# Aureality on a NAS or any Docker host.
+# The server serves ./web (the app) and ./landing (shown on aureality.eu),
+# and answers the app's AI requests with your Claude API key from .env.
+services:
+  aureality:
+    image: node:22-alpine
+    container_name: aureality
+    working_dir: /app
+    command: node server/server.js
+    ports:
+      - "8090:8080"
+    volumes:
+      - ./web:/app/web:ro
+      - ./landing:/app/landing:ro
+      - ./server:/app/server:ro
+    environment:
+      - ANTHROPIC_API_KEY=${ANTHROPIC_API_KEY:-}
+      - AUREALITY_ACCESS_CODE=${AUREALITY_ACCESS_CODE:-}
+      - AUREALITY_MODEL=${AUREALITY_MODEL:-claude-sonnet-5-5}
+    restart: unless-stopped
+
+  # Public access through a Cloudflare Tunnel (no router ports to open, HTTPS included).
+  # Needs TUNNEL_TOKEN in .env. See docs/SELF-HOSTING.md.
+  cloudflared:
+    image: cloudflare/cloudflared:2024.12.2
+    container_name: aureality-tunnel
+    command: tunnel --no-autoupdate run
+    environment:
+      - TUNNEL_TOKEN=${TUNNEL_TOKEN:-}
+    depends_on:
+      - aureality
+    restart: unless-stopped
