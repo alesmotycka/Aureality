@@ -1,0 +1,14 @@
+{
+  "name": "aureality-are",
+  "version": "0.1.0",
+  "description": "Reference SDK and CLI for the .are (Aureality Reality Entity) file format",
+  "type": "module",
+  "license": "Apache-2.0",
+  "main": "sdk/js/are.js",
+  "bin": { "are": "sdk/js/cli.js" },
+  "engines": { "node": ">=20" },
+  "scripts": {
+    "test": "node --test",
+    "examples": "node scripts/build-examples.mjs"
+  }
+}

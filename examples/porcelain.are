@@ -1,0 +1,85 @@
+{
+  "header": {
+    "did": "did:are:public:material:porcelain",
+    "name": "Porcelain",
+    "version": "0.1.0",
+    "scale_exponent": -6,
+    "privacy_mode": "PUBLIC_ONCHAIN",
+    "merkle_root": "sha256:0d1c20d6a30f441004a94ad3e9145603e0fcd6aa6fb5065bb75e936b3f9b97d3",
+    "created_at": "2026-10-26T09:00:00.000Z"
+  },
+  "spatial": {
+    "coordinates": {
+      "reference_frame": "root",
+      "position": [
+        0,
+        0,
+        0
+      ],
+      "rotation_quaternion": [
+        0,
+        0,
+        0,
+        1
+      ]
+    },
+    "physical_properties": {
+      "density_kg_m3": 2400,
+      "composition": [
+        {
+          "did": "did:are:public:mineral:kaolinite",
+          "share": 0.5
+        },
+        {
+          "did": "did:are:public:mineral:quartz",
+          "share": 0.25
+        },
+        {
+          "did": "did:are:public:mineral:feldspar",
+          "share": 0.25
+        }
+      ]
+    },
+    "geometry_refs": []
+  },
+  "graph": {
+    "parent_did": null,
+    "children_dids": [],
+    "relations": [
+      {
+        "type": "made_of",
+        "target_did": "did:are:public:element:O-16"
+      },
+      {
+        "type": "made_of",
+        "target_did": "did:are:public:element:Si-28"
+      }
+    ]
+  },
+  "mind_sense": {
+    "ontology_tags": [
+      "material",
+      "ceramic"
+    ],
+    "summary": "Vitrified ceramic fired at about 1300 °C.",
+    "human_notes": []
+  },
+  "timeline": {
+    "head_commit": "sha256:de5c201f79377e63694fb10547ffe5e1809db7ed8a08fbda922964da546eb817",
+    "history": [
+      {
+        "id": "sha256:de5c201f79377e63694fb10547ffe5e1809db7ed8a08fbda922964da546eb817",
+        "event": "created",
+        "parent": null,
+        "root": "sha256:0d1c20d6a30f441004a94ad3e9145603e0fcd6aa6fb5065bb75e936b3f9b97d3",
+        "timestamp": "2026-10-26T09:00:00.000Z"
+      }
+    ]
+  },
+  "ledger": {
+    "encryption_scheme": "NONE",
+    "storage_cid": null,
+    "blockchain_anchor": null,
+    "license": "CC0-1.0"
+  }
+}

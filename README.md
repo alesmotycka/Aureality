@@ -1,5 +1,5 @@
 # Aureality
-Maping and Sorting reality  — The Aureality Ecosystem &amp; .are (Aureality Reality Entity) universal file format from atom to universe.
+Mapping and sorting reality — The Aureality Ecosystem &amp; .are (Aureality Reality Entity) universal file format from atom to universe.
 
 # 🌌 Aureality & The `.are` Universal Reality Protocol
 
@@ -36,15 +36,62 @@ Every `.are` file acts as a **Fractal, Hierarchical Graph Container** with lazy-
 
 ---
 
+## 🚀 Quick start
+
+Requires Node.js 20 or newer. No dependencies to install.
+
+```bash
+node sdk/js/cli.js verify examples/armchair.are     # structure + merkle root + history chain
+node sdk/js/cli.js hash examples/coffee_mug.are     # each layer's hash and the root
+node sdk/js/cli.js share examples/armchair.are ledger timeline   # verifiable copy for a buyer
+npm test
+```
+
+```js
+import { createEntity, nest, relate, addNote, commit, transfer, disclose } from "./sdk/js/are.js";
+
+const mug = createEntity({ did: "did:are:local:mug-1", name: "Coffee mug", scale_exponent: -1 });
+relate(mug, "made_of", "did:are:public:material:porcelain");   // atomic depth for free
+addNote(mug, { text: "Sell at the flea market", audio_uri: "local://voice/mug.m4a" });
+mug.mind_sense.sort_plan = "SELL";
+await commit(mug, "created");                                    // seals the merkle root, starts the history
+await transfer(mug, { to: "did:are:person:new-owner" });          // history travels with the object
+```
+
+**Reality Explorer:** run `python3 -m http.server` in this folder and open
+<http://localhost:8000/viewer/>. Slide from an atom to the universe, open your own `.are` file, and see a buyer's view.
+
+## 📁 What's here
+
+| Path | What |
+|---|---|
+| [`spec/RFC-0001-ARE-Format.md`](spec/RFC-0001-ARE-Format.md) | The v0.1 specification: six layers, hashing, privacy modes, sharing |
+| [`spec/schema.are.json`](spec/schema.are.json) | JSON Schema (draft 2020-12) |
+| [`examples/`](examples/) | Hydrogen atom, porcelain, coffee mug, armchair (+ buyer's view), observable universe |
+| [`sdk/js/`](sdk/js/) | Zero-dependency JavaScript SDK and `are` command-line tool |
+| [`viewer/`](viewer/) | Reality Explorer with the scale slider |
+
 ## 🗺️ Repository Roadmap
 - [x] Initial Concept & 6-Layer `.are` Architecture Specification
-- [ ] v0.1 JSON/Binary Schema Definition (`schema.are.json`)
-- [ ] Reference `.are` Examples (`atom.are`, `object.are`, `universe.are`)
-- [ ] Open-Source `.are` Packer/Unpacker CLI & SDK
-- [ ] Local Vault & On-Chain Merkle Anchor Prototype
+- [x] v0.1 JSON Schema Definition (`spec/schema.are.json`)
+- [x] Reference `.are` Examples (atom, material, object, universe)
+- [x] Open-Source `.are` SDK & CLI (JavaScript): create, seal, verify, history, transfer, selective sharing
+- [x] Reality Explorer with the "Reality Scale Slider"
+- [ ] Packer/Unpacker for the folder form, Python SDK
+- [ ] Encryption envelope for `LOCAL_PRIVATE` and `ENCRYPTED_SHARED`
+- [ ] Public template library (elements, materials, common products) under `did:are:public:`
+- [ ] Local Vault & optional On-Chain Merkle Anchor Prototype
+- [ ] Lawyer review of the patent promise, media type registration
+
+### Coming to the Aureality app
+- Voice notes pinned to the objects you tap
+- Keep / Sell / Donate / Repair / Recycle plans on every object, and hand an object's `.are` file to its buyer
+- Object history: moved, repaired, sold
+- Decluttering quests ("clear one shelf") with a progress score
+- Private / shared / public switch on every object
 
 ---
 
 ## 📜 License & Authorship
 Created by **Aleš Motyčka** (@alesmotycka).  
-Specification and reference code licensed under the **Apache License 2.0**.
+Code is licensed under the **Apache License 2.0**, the specification under CC BY 4.0, and the schema and examples under CC0. See [LICENSING.md](LICENSING.md) and the [patent promise](PATENTS.md).
